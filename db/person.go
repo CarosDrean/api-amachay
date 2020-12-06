@@ -19,12 +19,12 @@ func GetPersons() []models.Person {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Adress,&item.Mail)
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Phone, &item.Dni, &item.Address, &item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -42,12 +42,12 @@ func GetPerson(id string) []models.Person {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Adress,&item.Mail)
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Phone, &item.Dni, &item.Address, &item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -70,7 +70,7 @@ func CreatePerson(item models.Person) (int64, error) {
 		sql.Named("LastName", item.LastName),
 		sql.Named("Dni", item.Dni),
 		sql.Named("Phone", item.Phone),
-		sql.Named("Adress", item.Adress),
+		sql.Named("Adress", item.Address),
 		sql.Named("Mail", item.Mail))
 
 	var newID int64
@@ -93,7 +93,7 @@ func UpdatePerson(item models.Person) (int64, error) {
 		sql.Named("LastName", item.LastName),
 		sql.Named("Dni", item.Dni),
 		sql.Named("Phone", item.Phone),
-		sql.Named("Adress", item.Adress),
+		sql.Named("Adress", item.Address),
 		sql.Named("Mail", item.Mail))
 	if err != nil {
 		return -1, err
@@ -101,7 +101,7 @@ func UpdatePerson(item models.Person) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeletePerson (id string) (int64, error) {
+func DeletePerson(id string) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryPerson["delete"].Q)
 	result, err := DB.ExecContext(
@@ -113,5 +113,3 @@ func DeletePerson (id string) (int64, error) {
 	}
 	return result.RowsAffected()
 }
-
-

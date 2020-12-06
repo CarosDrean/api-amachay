@@ -9,52 +9,54 @@ import (
 	"strconv"
 )
 
-func GetCategories(w http.ResponseWriter, r *http.Request) {
+func GetOutputs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := db.GetCategories()
+	items := db.GetOutputs()
 	_ = json.NewEncoder(w).Encode(items)
 }
 
-func GetCategory(w http.ResponseWriter, r *http.Request) {
+func GetOutput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := db.GetCategory(id)
+	items := db.GetOutput(id)
 
 	_ = json.NewEncoder(w).Encode(items[0])
 }
 
-func CreateCategory(w http.ResponseWriter, r *http.Request) {
+func CreateOutput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var item models.Category
+	var item models.Output
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := db.CreateCategory(item)
-	checkError(err, "Created", "Category")
+	result, err := db.CreateOutput(item)
+	checkError(err, "Created", "Output")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func UpdateCategory(w http.ResponseWriter, r *http.Request) {
+func UpdateOutput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	var item models.Category
+	var item models.Output
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
-	result, err := db.UpdateCategory(item)
-	checkError(err, "Updated", "Category")
+	result, err := db.UpdateOutput(item)
+	checkError(err, "Updated", "Output")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteCategory(w http.ResponseWriter, r *http.Request) {
+func DeleteOutput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := db.DeleteCategory(id)
-	checkError(err, "Deleted", "Category")
+	result, err := db.DeleteOutput(id)
+	checkError(err, "Deleted", "Output")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
+
+

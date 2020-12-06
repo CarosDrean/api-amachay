@@ -11,4 +11,6 @@ func Routes(r *mux.Router) {
 	productRoutes(pr)
 	i := r.PathPrefix("/input").Subrouter()
 	inputRoutes(i)
+	o := r.PathPrefix("/output").Subrouter()
+	outputRoutes(o)
 }

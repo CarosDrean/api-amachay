@@ -2,15 +2,16 @@ package router
 
 import (
 	product "github.com/CarosDrean/api-amachay/controllers"
+	mid "github.com/CarosDrean/api-amachay/middleware"
 	"github.com/gorilla/mux"
 )
 
 func productRoutes(s *mux.Router)  {
-	s.HandleFunc("/", product.GetProducts).Methods("GET")
-	s.HandleFunc("/{id}", product.GetProduct).Methods("GET")
-	s.HandleFunc("/", product.CreateProduct).Methods("POST")
-	s.HandleFunc("/{id}", product.UpdateProduct).Methods("PUT")
-	s.HandleFunc("/{id}", product.DeleteProduct).Methods("DELETE")
+	s.HandleFunc("/", mid.CheckSecurity(product.GetProducts)).Methods("GET")
+	s.HandleFunc("/{id}", mid.CheckSecurity(product.GetProduct)).Methods("GET")
+	s.HandleFunc("/", mid.CheckSecurity(product.CreateProduct)).Methods("POST")
+	s.HandleFunc("/{id}", mid.CheckSecurity(product.UpdateProduct)).Methods("PUT")
+	s.HandleFunc("/{id}", mid.CheckSecurity(product.DeleteProduct)).Methods("DELETE")
 }
 	
 

@@ -8,23 +8,23 @@ import (
 	"log"
 )
 
-func GetCategories() []models.Category {
-	res := make([]models.Category, 0)
-	var item models.Category
+func GetOutputs() []models.Output {
+	res := make([]models.Output, 0)
+	var item models.Output
 
-	tsql := fmt.Sprintf(queryCategory["list"].Q)
+	tsql := fmt.Sprintf(queryOutput["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name)
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Date, &item.Quantity, &item.IdProduct)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -32,23 +32,23 @@ func GetCategories() []models.Category {
 	return res
 }
 
-func GetCategory(id string) []models.Category {
-	res := make([]models.Category, 0)
-	var item models.Category
+func GetOutput(id string) []models.Output {
+	res := make([]models.Output, 0)
+	var item models.Output
 
-	tsql := fmt.Sprintf(queryCategory["get"].Q, id)
+	tsql := fmt.Sprintf(queryOutput["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name)
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Date, &item.Quantity, &item.IdProduct)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -56,38 +56,40 @@ func GetCategory(id string) []models.Category {
 	return res
 }
 
-
-func CreateCategory(item models.Category) (int64, error) {
+func CreateOutput(item models.Output) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["insert"].Q)
-	fmt.Println(tsql)
+	tsql := fmt.Sprintf(queryOutput["insert"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("Name", item.Name))
+		sql.Named("Date", item.Date),
+		sql.Named("Quantity", item.Quantity),
+		sql.Named("IdProduct", item.IdProduct))
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
 
-func UpdateCategory(item models.Category) (int64, error) {
+func UpdateOutput(item models.Output) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["update"].Q)
+	tsql := fmt.Sprintf(queryOutput["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", item.ID),
-		sql.Named("Name", item.Name))
+		sql.Named("Date", item.Date),
+		sql.Named("Quantity", item.Quantity),
+		sql.Named("IdProduct", item.IdProduct))
+
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-
-func DeleteCategory(id string) (int64, error) {
+func DeleteOutput(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["delete"].Q)
+	tsql := fmt.Sprintf(queryOutput["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

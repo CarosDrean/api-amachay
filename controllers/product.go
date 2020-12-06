@@ -5,7 +5,6 @@ import (
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -32,9 +31,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	var item models.Product
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	result, err := db.CreateProduct(item)
-	if err != nil {
-		log.Println(err)
-	}
+	checkError(err, "Created", "Product")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -47,9 +44,7 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
 	result, err := db.UpdateProduct(item)
-	if err != nil {
-		log.Println(err)
-	}
+	checkError(err, "Updated", "Product")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -59,9 +54,7 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	result, err := db.DeleteProduct(id)
-	if err != nil {
-		log.Println(err)
-	}
+	checkError(err, "Deleted", "Product")
 
 	_ = json.NewEncoder(w).Encode(result)
 }

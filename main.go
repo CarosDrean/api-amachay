@@ -28,8 +28,6 @@ func main ()  {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{
 			"http://localhost:4200",
-			"http://192.241.159.224",
-			"http://resultados.holosalud.org",
 			"https://resultados.holosalud.org",
 		},
 		AllowCredentials: true,

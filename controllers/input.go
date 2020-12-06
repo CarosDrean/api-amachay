@@ -5,7 +5,6 @@ import (
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -32,9 +31,7 @@ func CreateInput(w http.ResponseWriter, r *http.Request) {
 	var item models.Input
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	result, err := db.CreateInput(item)
-	if err != nil {
-		log.Println(err)
-	}
+	checkError(err, "Created", "Input")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -47,9 +44,7 @@ func UpdateInput(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
 	result, err := db.UpdateInput(item)
-	if err != nil {
-		log.Println(err)
-	}
+	checkError(err, "Updated", "Input")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -59,11 +54,8 @@ func DeleteInput(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	result, err := db.DeleteInput(id)
-	if err != nil {
-		log.Println(err)
-	}
+	checkError(err, "Deleted", "Input")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
-
 

@@ -8,9 +8,10 @@ import (
 	"github.com/CarosDrean/api-amachay/models"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"strconv"
 )
 
-func GetSystemUsers() [] models.SystemUser {
+func GetSystemUsers() []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
 
@@ -21,12 +22,12 @@ func GetSystemUsers() [] models.SystemUser {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Username, &item.Rol, &item.Password,&item.IdPerson)
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Role, &item.IdPerson)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -45,12 +46,12 @@ func GetSystemUser(id string) []models.SystemUser {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson)
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Role, &item.IdPerson)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -61,13 +62,14 @@ func GetSystemUser(id string) []models.SystemUser {
 func CreateSystemUser(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
+	item.Password = encrypt(item.Password)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("Username", item.Username),
 		sql.Named("password", item.Password),
-		sql.Named("rol",item.Rol),
-		sql.Named("IdPerson",item.IdPerson))
+		sql.Named("rol", item.Role),
+		sql.Named("IdPerson", item.IdPerson))
 	if err != nil {
 		return -1, err
 	}
@@ -77,16 +79,20 @@ func CreateSystemUser(item models.SystemUser) (int64, error) {
 func UpdateSystemUser(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(QuerySystemUser["update"].Q)
-	fmt.Println(tsql)
-	fmt.Println(item)
+
+	user := GetSystemUser(strconv.Itoa(item.ID))[0]
+	if user.Password != item.Password {
+		item.Password = encrypt(item.Password)
+	}
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", item.ID),
 		sql.Named("Username", item.Username),
-		sql.Named("password",item.Password),
-		sql.Named("rol",item.Rol),
-		sql.Named("IdPerson",item.IdPerson))
+		sql.Named("password", item.Password),
+		sql.Named("rol", item.Role),
+		sql.Named("IdPerson", item.IdPerson))
 
 	if err != nil {
 		log.Println(err)
@@ -107,9 +113,6 @@ func DeleteSystemUser(id string) (int64, error) {
 	return result.RowsAffected()
 }
 
-
-
-
 func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
@@ -121,12 +124,12 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson)
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Role, &item.IdPerson)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 			log.Println(item.Password)
 		}
@@ -135,7 +138,7 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	return res
 }
 
-func ValidateSystemUserLogin(user string, password string) (constants.State, string){
+func ValidateSystemUserLogin(user string, password string) (constants.State, string) {
 	items := GetSystemUserFromUserName(user)
 	if len(items) > 0 {
 		if comparePassword(items[0].Password, password) {
