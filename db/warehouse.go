@@ -59,7 +59,7 @@ func GetWarehouse(id string) []models.Warehouse {
 
 func CreateWarehouse(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryMovement["insert"].Q)
+	tsql := fmt.Sprintf(queryWarehouse["insert"].Q)
 	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
@@ -75,7 +75,7 @@ func CreateWarehouse(item models.Warehouse) (int64, error) {
 
 func UpdateWarehouse(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryMovement["update"].Q)
+	tsql := fmt.Sprintf(queryWarehouse["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -91,7 +91,7 @@ func UpdateWarehouse(item models.Warehouse) (int64, error) {
 
 func DeleteWarehouse(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryMovement["delete"].Q)
+	tsql := fmt.Sprintf(queryWarehouse["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
