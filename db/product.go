@@ -20,7 +20,7 @@ func GetProducts() [] models.Product {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.Description, &item.Price, &item.Stock, &item.IdCategory)
+		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -44,7 +44,7 @@ func GetProduct(id string) []models.Product {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.Description, &item.Price, &item.Stock, &item.IdCategory)
+		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -63,7 +63,7 @@ func CreateProduct(item models.Product) (int64, error) {
 		ctx,
 		tsql,
 		sql.Named("Name", item.Name),
-		sql.Named("description", item.Description),
+		sql.Named("Description", item.Description),
 		sql.Named("Price", item.Price),
 		sql.Named("Stock", item.Stock),
 		sql.Named("IdCategory",item.IdCategory))
@@ -80,7 +80,7 @@ func UpdateProduct(item models.Product) (int64, error) {
 		tsql,
 		sql.Named("ID", item.ID),
 		sql.Named("Name", item.Name),
-		sql.Named("description",item.Description),
+		sql.Named("Description",item.Description),
 		sql.Named("Price", item.Price),
 		sql.Named("Stock",item.Stock),
 		sql.Named("IdCategory",item.IdCategory))

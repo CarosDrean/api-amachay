@@ -8,23 +8,23 @@ import (
 	"log"
 )
 
-func GetInputs() []models.Input {
-	res := make([]models.Input, 0)
-	var item models.Input
+func GetWarehouses() []models.Warehouse {
+	res := make([]models.Warehouse, 0)
+	var item models.Warehouse
 
-	tsql := fmt.Sprintf(queryInput["list"].Q)
+	tsql := fmt.Sprintf(queryWarehouse["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.Date, &item.Quantity, &item.IdProduct)
+	for rows.Next(){
+		err := rows.Scan(&item.ID, &item.Name, &item.Address, &item.State)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else {
+		} else{
 			res = append(res, item)
 		}
 	}
@@ -32,23 +32,23 @@ func GetInputs() []models.Input {
 	return res
 }
 
-func GetInput(id string) []models.Input {
-	res := make([]models.Input, 0)
-	var item models.Input
+func GetWarehouse(id string) []models.Warehouse {
+	res := make([]models.Warehouse, 0)
+	var item models.Warehouse
 
-	tsql := fmt.Sprintf(queryInput["get"].Q, id)
+	tsql := fmt.Sprintf(queryWarehouse["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.Date, &item.Quantity, &item.IdProduct)
+	for rows.Next(){
+		err := rows.Scan(&item.ID, &item.Name, &item.Address, &item.State)
 		if err != nil {
 			log.Println(err)
 			return res
-		} else {
+		} else{
 			res = append(res, item)
 		}
 	}
@@ -56,39 +56,42 @@ func GetInput(id string) []models.Input {
 	return res
 }
 
-func CreateInput(item models.Input) (int64, error) {
+
+func CreateWarehouse(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryInput["insert"].Q)
+	tsql := fmt.Sprintf(queryMovement["insert"].Q)
+	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("Date", item.Date),
-		sql.Named("Quantity", item.Quantity),
-		sql.Named("IdProduct", item.IdProduct))
+		sql.Named("Name", item.Name),
+		sql.Named("Address", item.Address),
+		sql.Named("State", item.State))
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-func UpdateInput(item models.Input) (int64, error) {
+
+func UpdateWarehouse(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryInput["update"].Q)
+	tsql := fmt.Sprintf(queryMovement["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", item.ID),
-		sql.Named("Date", item.Date),
-		sql.Named("Quantity", item.Quantity),
-		sql.Named("IdProduct", item.IdProduct))
-
+		sql.Named("Name", item.Name),
+		sql.Named("Address", item.Address),
+		sql.Named("State", item.State))
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-func DeleteInput(id string) (int64, error) {
+
+func DeleteWarehouse(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryInput["delete"].Q)
+	tsql := fmt.Sprintf(queryMovement["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
