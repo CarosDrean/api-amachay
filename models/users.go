@@ -4,7 +4,7 @@ type SystemUser struct {
 	ID       int    `json:"_id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Role     string `json:"role"`
+	Role     string `json:"role"` // Admin or User
 	IdPerson int64  `json:"idPerson"`
 }
 
@@ -14,6 +14,6 @@ type UserResult struct {
 }
 
 type UserLogin struct {
-	User     string
-	Password string
+	User     string `json:"username"`
+	Password string `json:"password"`
 }

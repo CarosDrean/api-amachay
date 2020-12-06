@@ -2,7 +2,7 @@ package models
 
 type Movement struct {
 	ID          int    `json:"_id"`
-	IdProduct   int    `json:"idPerson"`
+	IdProduct   int    `json:"idProduct"`
 	IdWarehouse int    `json:"idWarehouse"`
 	IdUser      int    `json:"idUser"`
 	IdClient    int    `json:"idClient"`

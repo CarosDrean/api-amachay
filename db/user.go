@@ -43,7 +43,7 @@ func GetSystemUser(id string) []models.SystemUser {
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
+		fmt.Println("Error reading rows 1: " + err.Error())
 		return res
 	}
 	for rows.Next() {
@@ -118,6 +118,7 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	var item models.SystemUser
 
 	tsql := fmt.Sprintf(QuerySystemUser["getUserName"].Q, userName)
+
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -131,7 +132,6 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 			return res
 		} else {
 			res = append(res, item)
-			log.Println(item.Password)
 		}
 	}
 	defer rows.Close()
@@ -142,7 +142,7 @@ func ValidateSystemUserLogin(user string, password string) (constants.State, str
 	items := GetSystemUserFromUserName(user)
 	if len(items) > 0 {
 		if comparePassword(items[0].Password, password) {
-			return constants.Accept, string(rune(items[0].ID))
+			return constants.Accept, strconv.Itoa(items[0].ID)
 		}
 		return constants.InvalidCredentials, ""
 	}
