@@ -9,8 +9,8 @@ func Routes(r *mux.Router) {
 	categoryRoutes(c)
 	pr := r.PathPrefix("/product").Subrouter()
 	productRoutes(pr)
-	i := r.PathPrefix("/input").Subrouter()
-	inputRoutes(i)
-	o := r.PathPrefix("/output").Subrouter()
-	outputRoutes(o)
+	m := r.PathPrefix("/movement").Subrouter()
+	movementRoutes(m)
+	w := r.PathPrefix("/warehouse").Subrouter()
+	warehouseRoutes(w)
 }
