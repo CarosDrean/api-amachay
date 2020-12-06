@@ -9,6 +9,15 @@ import (
 	"strconv"
 )
 
+func GetMovementsWarehouse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var params = mux.Vars(r)
+	id, _ := params["idWarehouse"]
+
+	items := db.GetMovementsWarehouse(id)
+	_ = json.NewEncoder(w).Encode(items)
+}
+
 func GetMovements(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	items := db.GetMovements()

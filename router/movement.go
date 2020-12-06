@@ -7,6 +7,7 @@ import (
 )
 
 func movementRoutes(s *mux.Router) {
+	s.HandleFunc("/all/{idWarehouse}", mid.CheckSecurity(movement.GetMovementsWarehouse)).Methods("GET")
 	s.HandleFunc("/", mid.CheckSecurity(movement.GetMovements)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(movement.GetMovement)).Methods("GET")
 	s.HandleFunc("/", mid.CheckSecurity(movement.CreateMovement)).Methods("POST")

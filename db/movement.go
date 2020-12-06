@@ -8,6 +8,31 @@ import (
 	"log"
 )
 
+func GetMovementsWarehouse(idWarehouse string) []models.Movement {
+	res := make([]models.Movement, 0)
+	var item models.Movement
+
+	tsql := fmt.Sprintf(queryMovement["listWarehouseId"].Q, idWarehouse)
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		fmt.Println("Error reading rows: " + err.Error())
+		return res
+	}
+	for rows.Next(){
+		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
+			&item.IdUser, &item.IdClient)
+		if err != nil {
+			log.Println(err)
+			return res
+		} else{
+			res = append(res, item)
+		}
+	}
+	defer rows.Close()
+	return res
+}
+
 func GetMovements() []models.Movement {
 	res := make([]models.Movement, 0)
 	var item models.Movement

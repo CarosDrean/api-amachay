@@ -88,6 +88,8 @@ var movement = TableDB{
 var queryMovement = map[string]*queryConfig{
 	"get":    {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " + movement.Fields[0] + " =%s;"},
 	"list":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + ";"},
+	"listWarehouseId":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
+		movement.Fields[2] + " = %s;"},
 	"insert": {Q: "insert into " + movement.Name + "(" + fieldStringInsert(movement.Fields) + ") values (" + valuesString(movement.Fields) + ");"},
 	"update": {Q: "update " + movement.Name + " set " + updatesString(movement.Fields) + " where " + movement.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + movement.Name + " where " + movement.Fields[0] + " = @ID"},
