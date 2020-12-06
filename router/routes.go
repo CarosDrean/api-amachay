@@ -13,4 +13,6 @@ func Routes(r *mux.Router) {
 	movementRoutes(m)
 	w := r.PathPrefix("/warehouse").Subrouter()
 	warehouseRoutes(w)
+	cl := r.PathPrefix("/client").Subrouter()
+	clientRoutes(cl)
 }

@@ -14,3 +14,16 @@ type UserPerson struct {
 	Dni      string `json:"dni"`
 	Mail     string `json:"mail"`
 }
+
+type ClientPerson struct {
+	ID       int    `json:"_id"`
+	Type     string `json:"type"`
+	IdPerson int64  `json:"idPerson"`
+	Name     string `json:"name"`
+	LastName string `json:"lastName"`
+	Cel      string `json:"cel"`
+	Phone    string `json:"phone"`
+	Address  string `json:"address"`
+	Dni      string `json:"dni"`
+	Mail     string `json:"mail"`
+}

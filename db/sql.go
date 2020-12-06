@@ -41,6 +41,19 @@ var queryCategory = map[string]*queryConfig{
 	"delete": {Q: "delete from " + category.Name + " where " + category.Fields[0] + " = @ID"},
 }
 
+var client = TableDB{
+	Name:   "dbo.CLIENT",
+	Fields: []string{"Id", "IdClient", "Type"},
+}
+
+var queryClient = map[string]*queryConfig{
+	"get":    {Q: "select " + fieldString(client.Fields) + " from " + client.Name + " where " + client.Fields[0] + " = %s;"},
+	"list":   {Q: "select " + fieldString(client.Fields) + " from " + client.Name + ";"},
+	"insert": {Q: "insert into " + client.Name + " (" + fieldStringInsert(client.Fields) + ") values (" + valuesString(client.Fields) + ");"},
+	"update": {Q: "update " + client.Name + " set " + updatesString(client.Fields) + " where " + client.Fields[0] + " = @ID;"},
+	"delete": {Q: "delete from " + client.Name + " where " + client.Fields[0] + " = @ID"},
+}
+
 var person = TableDB{
 	Name:   "dbo.PERSON",
 	Fields: []string{"Id", "Name", "LastName", "Cel", "Phone", "Address", "Dni", "Mail"},
