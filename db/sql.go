@@ -16,7 +16,7 @@ type TableDB struct {
 
 var user = TableDB{
 	Name:   "dbo.USERS",
-	Fields: []string{"Id", "IdPerson", "UserName", "Password", "Rol"},
+	Fields: []string{"Id", "IdPerson", "UserName", "Password", "Rol", "IdWarehouse"},
 }
 
 var QuerySystemUser = map[string]*queryConfig{

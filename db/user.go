@@ -23,7 +23,7 @@ func GetSystemUsers() []models.SystemUser {
 		return res
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role)
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &item.IdWarehouse)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -47,7 +47,7 @@ func GetSystemUser(id string) []models.SystemUser {
 		return res
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role)
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &item.IdWarehouse)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -69,7 +69,8 @@ func CreateSystemUser(item models.SystemUser) (int64, error) {
 		sql.Named("UserName", item.Username),
 		sql.Named("Password", item.Password),
 		sql.Named("Rol", item.Role),
-		sql.Named("IdPerson", item.IdPerson))
+		sql.Named("IdPerson", item.IdPerson),
+		sql.Named("IdWarehouse", item.IdWarehouse))
 	if err != nil {
 		return -1, err
 	}
@@ -92,7 +93,8 @@ func UpdateSystemUser(item models.SystemUser) (int64, error) {
 		sql.Named("UserName", item.Username),
 		sql.Named("Password", item.Password),
 		sql.Named("Rol", item.Role),
-		sql.Named("IdPerson", item.IdPerson))
+		sql.Named("IdPerson", item.IdPerson),
+		sql.Named("IdWarehouse", item.IdWarehouse))
 
 	if err != nil {
 		log.Println(err)
@@ -126,7 +128,7 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 		return res
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role)
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &item.IdWarehouse)
 		if err != nil {
 			log.Println(err)
 			return res

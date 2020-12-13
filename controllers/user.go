@@ -17,18 +17,19 @@ func GetSystemUsers(w http.ResponseWriter, r *http.Request) {
 	for _, e := range users {
 		person := db.GetPerson(strconv.Itoa(int(e.IdPerson)))[0]
 		item := models.UserPerson{
-			ID:       e.ID,
-			IdPerson: int64(person.ID),
-			Cel:      person.Cel,
-			Username: e.Username,
-			Password: e.Password,
-			Role:     e.Role,
-			Name:     person.Name,
-			LastName: person.LastName,
-			Phone:    person.Phone,
-			Address:  person.Address,
-			Dni:      person.Dni,
-			Mail:     person.Mail,
+			ID:          e.ID,
+			IdPerson:    int64(person.ID),
+			Cel:         person.Cel,
+			Username:    e.Username,
+			Password:    e.Password,
+			Role:        e.Role,
+			Name:        person.Name,
+			LastName:    person.LastName,
+			Phone:       person.Phone,
+			Address:     person.Address,
+			Dni:         person.Dni,
+			Mail:        person.Mail,
+			IdWarehouse: e.IdWarehouse,
 		}
 		res = append(res, item)
 	}
@@ -45,18 +46,19 @@ func GetSystemUser(w http.ResponseWriter, r *http.Request) {
 	if len(items) > 0 {
 		person := db.GetPerson(strconv.Itoa(int(items[0].IdPerson)))
 		userPerson = models.UserPerson{
-			ID:       items[0].ID,
-			IdPerson: int64(person[0].ID),
-			Username: items[0].Username,
-			Password: items[0].Password,
-			Cel:      person[0].Cel,
-			Role:     items[0].Role,
-			Name:     person[0].Name,
-			LastName: person[0].LastName,
-			Phone:    person[0].Phone,
-			Address:  person[0].Address,
-			Dni:      person[0].Dni,
-			Mail:     person[0].Mail,
+			ID:          items[0].ID,
+			IdPerson:    int64(person[0].ID),
+			Username:    items[0].Username,
+			Password:    items[0].Password,
+			Cel:         person[0].Cel,
+			Role:        items[0].Role,
+			Name:        person[0].Name,
+			LastName:    person[0].LastName,
+			Phone:       person[0].Phone,
+			Address:     person[0].Address,
+			Dni:         person[0].Dni,
+			Mail:        person[0].Mail,
+			IdWarehouse: items[0].IdWarehouse,
 		}
 	}
 	_ = json.NewEncoder(w).Encode(userPerson)
@@ -79,10 +81,11 @@ func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
 	idPerson, err := db.CreatePerson(person)
 	checkError(err, "Created", "Person")
 	user := models.SystemUser{
-		Username: userPerson.Username,
-		Password: userPerson.Password,
-		Role:     userPerson.Role,
-		IdPerson: idPerson,
+		Username:    userPerson.Username,
+		Password:    userPerson.Password,
+		Role:        userPerson.Role,
+		IdPerson:    idPerson,
+		IdWarehouse: userPerson.IdWarehouse,
 	}
 	result, err := db.CreateSystemUser(user)
 	checkError(err, "Created", "User")
@@ -114,11 +117,12 @@ func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 	result, err := db.UpdatePerson(person)
 
 	user := models.SystemUser{
-		ID:       item.ID,
-		Username: item.Username,
-		Password: item.Password,
-		Role:     item.Role,
-		IdPerson: item.IdPerson,
+		ID:          item.ID,
+		Username:    item.Username,
+		Password:    item.Password,
+		Role:        item.Role,
+		IdPerson:    item.IdPerson,
+		IdWarehouse: item.IdWarehouse,
 	}
 
 	result, err = db.UpdateSystemUser(user)
