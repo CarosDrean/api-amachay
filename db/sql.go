@@ -43,7 +43,7 @@ var queryCategory = map[string]*queryConfig{
 
 var client = TableDB{
 	Name:   "dbo.CLIENT",
-	Fields: []string{"Id", "IdClient", "Type"},
+	Fields: []string{"Id", "IdPerson", "Type"},
 }
 
 var queryClient = map[string]*queryConfig{

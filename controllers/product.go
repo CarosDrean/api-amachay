@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
@@ -40,8 +41,11 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
+
 	var item models.Product
 	_ = json.NewDecoder(r.Body).Decode(&item)
+	fmt.Println(id)
+	fmt.Println(item)
 	item.ID, _ = strconv.Atoi(id)
 	result, err := db.UpdateProduct(item)
 	checkError(err, "Updated", "Product")

@@ -75,7 +75,7 @@ func CreateClient(w http.ResponseWriter, r *http.Request) {
 	idPerson, err := db.CreatePerson(person)
 	checkError(err, "Created", "Person")
 	client := models.Client{
-		IdPerson: int(idPerson),
+		IdPerson: idPerson,
 		Type:     item.Type,
 	}
 	result, err := db.CreateClient(client)
@@ -90,7 +90,6 @@ func UpdateClient(w http.ResponseWriter, r *http.Request) {
 	id, _ := params["id"]
 
 	var item models.ClientPerson
-
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
 
@@ -110,7 +109,7 @@ func UpdateClient(w http.ResponseWriter, r *http.Request) {
 	client := models.Client{
 		ID:       item.ID,
 		Type:     item.Type,
-		IdPerson: int(item.IdPerson),
+		IdPerson: item.IdPerson,
 	}
 
 	result, err = db.UpdateClient(client)

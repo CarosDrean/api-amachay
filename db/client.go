@@ -60,7 +60,6 @@ func GetClient(id string) []models.Client {
 func CreateClient(item models.Client) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryClient["insert"].Q)
-	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

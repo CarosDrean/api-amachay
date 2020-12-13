@@ -58,7 +58,7 @@ func GetPerson(id string) []models.Person {
 func CreatePerson(item models.Person) (int64, error) {
 	ctx := context.Background()
 	tsql := queryPerson["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
-	fmt.Println(tsql)
+
 	stmt, err := DB.Prepare(tsql)
 	if err != nil {
 		return -1, err
@@ -85,7 +85,6 @@ func CreatePerson(item models.Person) (int64, error) {
 func UpdatePerson(item models.Person) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryPerson["update"].Q)
-	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
