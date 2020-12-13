@@ -80,8 +80,8 @@ func CreatePerson(item models.Person) (int64, error) {
 		return -1, err
 	}
 	return newID, nil
-
 }
+
 func UpdatePerson(item models.Person) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryPerson["update"].Q)

@@ -6,7 +6,7 @@ type SystemUser struct {
 	Password    string `json:"password"`
 	Role        string `json:"role"` // Admin or User
 	IdPerson    int64  `json:"idPerson"`
-	IdWarehouse int64  `json:"idWarehouse"`
+	IdWarehouse int    `json:"idWarehouse"`
 }
 
 type UserResult struct {

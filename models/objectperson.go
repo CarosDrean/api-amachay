@@ -13,7 +13,7 @@ type UserPerson struct {
 	Address     string `json:"address"`
 	Dni         string `json:"dni"`
 	Mail        string `json:"mail"`
-	IdWarehouse int64  `json:"idWarehouse"`
+	IdWarehouse int    `json:"idWarehouse"`
 }
 
 type ClientPerson struct {

@@ -23,7 +23,12 @@ func GetSystemUsers() []models.SystemUser {
 		return res
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &item.IdWarehouse)
+		var idWarehouse sql.NullString
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &idWarehouse)
+		item.IdWarehouse = -1
+		if idWarehouse.Valid {
+			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
+		}
 		if err != nil {
 			log.Println(err)
 			return res
@@ -47,7 +52,12 @@ func GetSystemUser(id string) []models.SystemUser {
 		return res
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &item.IdWarehouse)
+		var idWarehouse sql.NullString
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &idWarehouse)
+		item.IdWarehouse = -1
+		if idWarehouse.Valid {
+			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
+		}
 		if err != nil {
 			log.Println(err)
 			return res
@@ -128,7 +138,12 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 		return res
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &item.IdWarehouse)
+		var idWarehouse sql.NullString
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &idWarehouse)
+		item.IdWarehouse = -1
+		if idWarehouse.Valid {
+			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
+		}
 		if err != nil {
 			log.Println(err)
 			return res
