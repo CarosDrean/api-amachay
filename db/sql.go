@@ -93,7 +93,7 @@ var queryMovement = map[string]*queryConfig{
 		movement.Fields[2] + " = %s;"},
 	"listWarehouseFilter": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
 		movement.Fields[2] + " = %s and " + movement.Fields[5] + " = '%s' " +
-		"and DateTime >= CAST('%s' as date) and DateTime <= CAST('%s' as date) " +
+		"and CAST(DateTime as date) >= CAST('%s' as date) and CAST(DateTime as date) <= CAST('%s' as date) " +
 		"order by Id desc;"},
 	"insert": {Q: "insert into " + movement.Name + "(" + fieldStringInsert(movement.Fields) + ") values (" + valuesString(movement.Fields) + ");"},
 	"update": {Q: "update " + movement.Name + " set " + updatesString(movement.Fields) + " where " + movement.Fields[0] + " = @ID;"},

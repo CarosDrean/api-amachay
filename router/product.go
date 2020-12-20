@@ -7,6 +7,7 @@ import (
 )
 
 func productRoutes(s *mux.Router)  {
+	s.HandleFunc("/all/{id}", mid.CheckSecurity(product.GetProductsStock)).Methods("GET")
 	s.HandleFunc("/", mid.CheckSecurity(product.GetProducts)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(product.GetProduct)).Methods("GET")
 	s.HandleFunc("/", mid.CheckSecurity(product.CreateProduct)).Methods("POST")

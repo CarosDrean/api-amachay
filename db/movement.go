@@ -113,7 +113,9 @@ func GetMovement(id string) []models.Movement {
 func CreateMovement(item models.Movement) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryMovement["insert"].Q)
-	date, err := time.Parse("2006-01-02", item.Date)
+	date, err := time.Parse(time.RFC3339, item.Date + "T05:00:00Z")
+	checkError(err, "Convert date", "Movement")
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -133,7 +135,9 @@ func CreateMovement(item models.Movement) (int64, error) {
 func UpdateMovement(item models.Movement) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryMovement["update"].Q)
-	date, err := time.Parse("2006-01-02", item.Date)
+	date, err := time.Parse(time.RFC3339, item.Date + "T05:00:00Z")
+	checkError(err, "Convert date", "Movement")
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
