@@ -9,6 +9,15 @@ import (
 	"strconv"
 )
 
+func GetMovementsWarehouseFilter(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var item models.Filter
+	_ = json.NewDecoder(r.Body).Decode(&item)
+
+	items := db.GetMovementsWarehouseFilter(item)
+	_ = json.NewEncoder(w).Encode(items)
+}
+
 func GetMovementsWarehouse(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
@@ -67,4 +76,5 @@ func DeleteMovement(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.NewEncoder(w).Encode(result)
 }
+
 

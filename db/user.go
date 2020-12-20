@@ -72,7 +72,13 @@ func GetSystemUser(id string) []models.SystemUser {
 func CreateSystemUser(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
+
 	item.Password = encrypt(item.Password)
+
+	nameIdWarehouse := sql.Named("IdWarehouse", nil)
+	if item.IdWarehouse != -1 {
+		nameIdWarehouse = sql.Named("IdWarehouse", item.IdWarehouse)
+	}
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -80,7 +86,8 @@ func CreateSystemUser(item models.SystemUser) (int64, error) {
 		sql.Named("Password", item.Password),
 		sql.Named("Rol", item.Role),
 		sql.Named("IdPerson", item.IdPerson),
-		sql.Named("IdWarehouse", item.IdWarehouse))
+		nameIdWarehouse)
+
 	if err != nil {
 		return -1, err
 	}
@@ -96,6 +103,10 @@ func UpdateSystemUser(item models.SystemUser) (int64, error) {
 		item.Password = encrypt(item.Password)
 	}
 
+	nameIdWarehouse := sql.Named("IdWarehouse", nil)
+	if item.IdWarehouse != -1 {
+		nameIdWarehouse = sql.Named("IdWarehouse", item.IdWarehouse)
+	}
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -104,7 +115,7 @@ func UpdateSystemUser(item models.SystemUser) (int64, error) {
 		sql.Named("Password", item.Password),
 		sql.Named("Rol", item.Role),
 		sql.Named("IdPerson", item.IdPerson),
-		sql.Named("IdWarehouse", item.IdWarehouse))
+		nameIdWarehouse)
 
 	if err != nil {
 		log.Println(err)

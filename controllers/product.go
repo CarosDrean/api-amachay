@@ -10,6 +10,15 @@ import (
 	"strconv"
 )
 
+func GetProductsStock(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var params = mux.Vars(r)
+	id, _ := params["id"]
+	idI, _ := strconv.Atoi(id)
+	items := db.GetProductsStock(idI)
+	_ = json.NewEncoder(w).Encode(items)
+}
+
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	items := db.GetProducts()

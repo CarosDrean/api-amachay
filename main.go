@@ -49,5 +49,5 @@ func main ()  {
 }
 
 func indexRouter(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprintf(w, "Welcome api EPP!")
+	_, _ = fmt.Fprintf(w, "Welcome api Amachay!")
 }

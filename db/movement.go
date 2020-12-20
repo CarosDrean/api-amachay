@@ -6,7 +6,34 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
 	"log"
+	"strconv"
+	"time"
 )
+
+func GetMovementsWarehouseFilter(filter models.Filter) []models.Movement {
+	res := make([]models.Movement, 0)
+	var item models.Movement
+
+	tsql := fmt.Sprintf(queryMovement["listWarehouseFilter"].Q, filter.ID, filter.Type, filter.DateFrom, filter.DateTo)
+	rows, err := DB.Query(tsql)
+	if err != nil {
+		fmt.Println("Error reading rows: " + err.Error())
+		return res
+	}
+	for rows.Next(){
+		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
+			&item.IdUser, &item.IdClient)
+		if err != nil {
+			log.Println(err)
+			return res
+		} else{
+			item.Product = GetProduct(strconv.Itoa(item.IdProduct))[0].Name
+			res = append(res, item)
+		}
+	}
+	defer rows.Close()
+	return res
+}
 
 func GetMovementsWarehouse(idWarehouse string) []models.Movement {
 	res := make([]models.Movement, 0)
@@ -83,17 +110,16 @@ func GetMovement(id string) []models.Movement {
 	return res
 }
 
-
 func CreateMovement(item models.Movement) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryMovement["insert"].Q)
-	fmt.Println(tsql)
+	date, err := time.Parse("2006-01-02", item.Date)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("IdProduct", item.IdProduct),
 		sql.Named("IdWareHouse", item.IdWarehouse),
-		sql.Named("DateTime", item.Date),
+		sql.Named("DateTime", date),
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type),
 		sql.Named("IdUser", item.IdUser),
@@ -107,13 +133,14 @@ func CreateMovement(item models.Movement) (int64, error) {
 func UpdateMovement(item models.Movement) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryMovement["update"].Q)
+	date, err := time.Parse("2006-01-02", item.Date)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", item.ID),
 		sql.Named("IdProduct", item.IdProduct),
 		sql.Named("IdWareHouse", item.IdWarehouse),
-		sql.Named("DateTime", item.Date),
+		sql.Named("DateTime", date),
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type),
 		sql.Named("IdUser", item.IdUser),
@@ -135,4 +162,31 @@ func DeleteMovement(id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func GetStock(idWarehouse int, idProduct int) float64 {
+	var item float64
+
+	tsql := fmt.Sprintf(queryMovement["stock"].Q, idWarehouse, idProduct)
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		fmt.Println("Error reading rows: " + err.Error())
+		return 0
+	}
+	for rows.Next(){
+		var stock sql.NullFloat64
+		err := rows.Scan(&stock)
+		if stock.Valid {
+			item = stock.Float64
+		} else {
+			item = 0
+		}
+		if err != nil {
+			log.Println(err)
+			return 0
+		}
+	}
+	defer rows.Close()
+	return item
 }

@@ -20,12 +20,12 @@ var user = TableDB{
 }
 
 var QuerySystemUser = map[string]*queryConfig{
-	"getUserName":    {Q: "select " + fieldString(user.Fields) + " from " + user.Name + " where " + user.Fields[2] + " = '%s';"},
-	"get":            {Q: "select " + fieldString(user.Fields) + " from " + user.Name + " where " + user.Fields[0] + " = %s;"},
-	"list":           {Q: "select " + fieldString(user.Fields) + " from " + user.Name + ";"},
-	"insert":         {Q: "insert into " + user.Name + "(" + fieldStringInsert(user.Fields) + ") values (" + valuesString(user.Fields) + ");"},
-	"update":         {Q: "update " + user.Name + " set " + updatesString(user.Fields) + " where " + user.Fields[0] + " = @ID;"},
-	"delete":         {Q: "delete from " + user.Name + " where " + user.Fields[0] + " = @ID"},
+	"getUserName": {Q: "select " + fieldString(user.Fields) + " from " + user.Name + " where " + user.Fields[2] + " = '%s';"},
+	"get":         {Q: "select " + fieldString(user.Fields) + " from " + user.Name + " where " + user.Fields[0] + " = %s;"},
+	"list":        {Q: "select " + fieldString(user.Fields) + " from " + user.Name + ";"},
+	"insert":      {Q: "insert into " + user.Name + "(" + fieldStringInsert(user.Fields) + ") values (" + valuesString(user.Fields) + ");"},
+	"update":      {Q: "update " + user.Name + " set " + updatesString(user.Fields) + " where " + user.Fields[0] + " = @ID;"},
+	"delete":      {Q: "delete from " + user.Name + " where " + user.Fields[0] + " = @ID"},
 }
 
 var category = TableDB{
@@ -86,10 +86,15 @@ var movement = TableDB{
 }
 
 var queryMovement = map[string]*queryConfig{
-	"get":    {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " + movement.Fields[0] + " =%s;"},
-	"list":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + ";"},
-	"listWarehouseId":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
+	"get":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " + movement.Fields[0] + " =%s;"},
+	"list":  {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + ";"},
+	"stock": {Q: "select sum(Quantity) as stock from MOVEMENT where IdWareHouse = %d and IdProduct = %d;"},
+	"listWarehouseId": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
 		movement.Fields[2] + " = %s;"},
+	"listWarehouseFilter": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
+		movement.Fields[2] + " = %s and " + movement.Fields[5] + " = '%s' " +
+		"and DateTime >= CAST('%s' as date) and DateTime <= CAST('%s' as date) " +
+		"order by Id desc;"},
 	"insert": {Q: "insert into " + movement.Name + "(" + fieldStringInsert(movement.Fields) + ") values (" + valuesString(movement.Fields) + ");"},
 	"update": {Q: "update " + movement.Name + " set " + updatesString(movement.Fields) + " where " + movement.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + movement.Name + " where " + movement.Fields[0] + " = @ID"},
@@ -107,4 +112,3 @@ var queryWarehouse = map[string]*queryConfig{
 	"update": {Q: "update " + warehouse.Name + " set " + updatesString(warehouse.Fields) + " where " + warehouse.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + warehouse.Name + " where " + warehouse.Fields[0] + " = @ID"},
 }
-
