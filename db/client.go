@@ -5,14 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/query"
 	"log"
 )
 
-func GetClients() []models.Client {
+type ClientDB struct {}
+
+func (db ClientDB) GetAll() []models.Client {
 	res := make([]models.Client, 0)
 	var item models.Client
 
-	tsql := fmt.Sprintf(queryClient["list"].Q)
+	tsql := fmt.Sprintf(query.Client["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -32,11 +35,11 @@ func GetClients() []models.Client {
 	return res
 }
 
-func GetClient(id string) []models.Client {
+func (db ClientDB) Get(id string) []models.Client {
 	res := make([]models.Client, 0)
 	var item models.Client
 
-	tsql := fmt.Sprintf(queryClient["get"].Q, id)
+	tsql := fmt.Sprintf(query.Client["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -57,9 +60,9 @@ func GetClient(id string) []models.Client {
 }
 
 
-func CreateClient(item models.Client) (int64, error) {
+func (db ClientDB) Create(item models.Client) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryClient["insert"].Q)
+	tsql := fmt.Sprintf(query.Client["insert"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -71,9 +74,9 @@ func CreateClient(item models.Client) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateClient(item models.Client) (int64, error) {
+func (db ClientDB) Update(item models.Client) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryClient["update"].Q)
+	tsql := fmt.Sprintf(query.Client["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -86,9 +89,9 @@ func UpdateClient(item models.Client) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeleteClient(id string) (int64, error) {
+func (db ClientDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryClient["delete"].Q)
+	tsql := fmt.Sprintf(query.Client["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

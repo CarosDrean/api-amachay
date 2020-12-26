@@ -8,7 +8,6 @@ import (
 	"log"
 )
 
-
 func Get() *sql.DB {
 	config, err := utils.GetConfiguration()
 

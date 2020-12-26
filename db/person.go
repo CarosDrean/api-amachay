@@ -5,14 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/query"
 	"log"
 )
 
-func GetPersons() []models.Person {
+type PersonDB struct {}
+
+func (db PersonDB) GetAll() []models.Person {
 	res := make([]models.Person, 0)
 	var item models.Person
 
-	tsql := fmt.Sprintf(queryPerson["list"].Q)
+	tsql := fmt.Sprintf(query.Person["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -31,11 +34,11 @@ func GetPersons() []models.Person {
 	defer rows.Close()
 	return res
 }
-func GetPerson(id string) []models.Person {
+func (db PersonDB) Get(id string) []models.Person {
 	res := make([]models.Person, 0)
 	var item models.Person
 
-	tsql := fmt.Sprintf(queryPerson["get"].Q, id)
+	tsql := fmt.Sprintf(query.Person["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -55,9 +58,9 @@ func GetPerson(id string) []models.Person {
 	return res
 }
 
-func CreatePerson(item models.Person) (int64, error) {
+func (db PersonDB) Create(item models.Person) (int64, error) {
 	ctx := context.Background()
-	tsql := queryPerson["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
+	tsql := query.Person["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
 
 	stmt, err := DB.Prepare(tsql)
 	if err != nil {
@@ -82,9 +85,9 @@ func CreatePerson(item models.Person) (int64, error) {
 	return newID, nil
 }
 
-func UpdatePerson(item models.Person) (int64, error) {
+func (db PersonDB) Update(item models.Person) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryPerson["update"].Q)
+	tsql := fmt.Sprintf(query.Person["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -102,9 +105,9 @@ func UpdatePerson(item models.Person) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeletePerson(id string) (int64, error) {
+func (db PersonDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryPerson["delete"].Q)
+	tsql := fmt.Sprintf(query.Person["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

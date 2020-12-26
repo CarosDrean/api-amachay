@@ -1,15 +1,19 @@
 package router
 
 import (
-	warehouse "github.com/CarosDrean/api-amachay/controllers"
+	"github.com/CarosDrean/api-amachay/controllers"
+	"github.com/CarosDrean/api-amachay/db"
 	mid "github.com/CarosDrean/api-amachay/middleware"
 	"github.com/gorilla/mux"
 )
 
 func warehouseRoutes(s *mux.Router) {
-	s.HandleFunc("/", mid.CheckSecurity(warehouse.GetWarehouses)).Methods("GET")
-	s.HandleFunc("/{id}", mid.CheckSecurity(warehouse.GetWarehouse)).Methods("GET")
-	s.HandleFunc("/", mid.CheckSecurity(warehouse.CreateWarehouse)).Methods("POST")
-	s.HandleFunc("/{id}", mid.CheckSecurity(warehouse.UpdateWarehouse)).Methods("PUT")
-	s.HandleFunc("/{id}", mid.CheckSecurity(warehouse.DeleteWarehouse)).Methods("DELETE")
+	ctrl := controllers.WarehouseController{
+		DB: db.WarehouseDB{},
+	}
+	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")
+	s.HandleFunc("/", mid.CheckSecurity(ctrl.Create)).Methods("POST")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Update)).Methods("PUT")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Delete)).Methods("DELETE")
 }

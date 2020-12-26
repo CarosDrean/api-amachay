@@ -65,7 +65,6 @@ func CheckSecurity(next http.HandlerFunc) http.HandlerFunc {
 		token, err := request.ParseFromRequestWithClaims(r, request.OAuth2Extractor, &models.Claim{}, func(token *jwt.Token) (interface{}, error) {
 			return publicKey, nil
 		})
-		// log.Println(r.Header)
 
 		if err != nil {
 			switch err.(type) {

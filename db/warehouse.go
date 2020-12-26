@@ -5,14 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/query"
 	"log"
 )
 
-func GetWarehouses() []models.Warehouse {
+type WarehouseDB struct {}
+
+func (db WarehouseDB) GetAll() []models.Warehouse {
 	res := make([]models.Warehouse, 0)
 	var item models.Warehouse
 
-	tsql := fmt.Sprintf(queryWarehouse["list"].Q)
+	tsql := fmt.Sprintf(query.Warehouse["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -32,11 +35,11 @@ func GetWarehouses() []models.Warehouse {
 	return res
 }
 
-func GetWarehouse(id string) []models.Warehouse {
+func (db WarehouseDB) Get(id string) []models.Warehouse {
 	res := make([]models.Warehouse, 0)
 	var item models.Warehouse
 
-	tsql := fmt.Sprintf(queryWarehouse["get"].Q, id)
+	tsql := fmt.Sprintf(query.Warehouse["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -57,9 +60,9 @@ func GetWarehouse(id string) []models.Warehouse {
 }
 
 
-func CreateWarehouse(item models.Warehouse) (int64, error) {
+func (db WarehouseDB) Create(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryWarehouse["insert"].Q)
+	tsql := fmt.Sprintf(query.Warehouse["insert"].Q)
 	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
@@ -73,9 +76,9 @@ func CreateWarehouse(item models.Warehouse) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateWarehouse(item models.Warehouse) (int64, error) {
+func (db WarehouseDB) Update(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryWarehouse["update"].Q)
+	tsql := fmt.Sprintf(query.Warehouse["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -89,9 +92,9 @@ func UpdateWarehouse(item models.Warehouse) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeleteWarehouse(id string) (int64, error) {
+func (db WarehouseDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryWarehouse["delete"].Q)
+	tsql := fmt.Sprintf(query.Warehouse["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

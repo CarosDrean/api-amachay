@@ -1,15 +1,20 @@
 package router
 
 import (
-	client "github.com/CarosDrean/api-amachay/controllers"
+	"github.com/CarosDrean/api-amachay/controllers"
+	"github.com/CarosDrean/api-amachay/db"
 	mid "github.com/CarosDrean/api-amachay/middleware"
 	"github.com/gorilla/mux"
 )
 
 func clientRoutes(s *mux.Router) {
-	s.HandleFunc("/", mid.CheckSecurity(client.GetClients)).Methods("GET")
-	s.HandleFunc("/{id}", mid.CheckSecurity(client.GetClient)).Methods("GET")
-	s.HandleFunc("/", mid.CheckSecurity(client.CreateClient)).Methods("POST")
-	s.HandleFunc("/{id}", mid.CheckSecurity(client.UpdateClient)).Methods("PUT")
-	s.HandleFunc("/{id}", mid.CheckSecurity(client.DeleteClient)).Methods("DELETE")
+	ctrl := controllers.ClientsController{
+		DB:       db.ClientDB{},
+		PersonDB: db.PersonDB{},
+	}
+	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")
+	s.HandleFunc("/", mid.CheckSecurity(ctrl.Create)).Methods("POST")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Update)).Methods("PUT")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Delete)).Methods("DELETE")
 }

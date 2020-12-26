@@ -5,62 +5,62 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
-	"log"
 )
 
-func GetCategories() []models.Category {
+type CategoryDB struct {
+	Ctx string // contexto, lugar, se usa para el log del error
+	Query models.QueryDB
+}
+
+func (db CategoryDB) GetAll() ([]models.Category, error) {
 	res := make([]models.Category, 0)
 	var item models.Category
 
-	tsql := fmt.Sprintf(queryCategory["list"].Q)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
+		checkError(err, "GetAll", db.Ctx, "Reading rows")
+		return res, err
 	}
 	for rows.Next(){
 		err := rows.Scan(&item.ID, &item.Name)
 		if err != nil {
-			log.Println(err)
-			return res
+			checkError(err, "GetAll", db.Ctx, "Scan rows")
+			return res, err
 		} else{
 			res = append(res, item)
 		}
 	}
 	defer rows.Close()
-	return res
+	return res, nil
 }
 
-func GetCategory(id string) []models.Category {
-	res := make([]models.Category, 0)
+func (db CategoryDB) Get(id string) (models.Category, error) {
 	var item models.Category
 
-	tsql := fmt.Sprintf(queryCategory["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
+		checkError(err, "GetAll", db.Ctx, "Reading rows")
+		return item, err
 	}
 	for rows.Next(){
 		err := rows.Scan(&item.ID, &item.Name)
 		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
+			checkError(err, "Get", db.Ctx, "Scan rows")
+			return item, err
 		}
 	}
 	defer rows.Close()
-	return res
+	return item, nil
 }
 
 
-func CreateCategory(item models.Category) (int64, error) {
+func (db CategoryDB) Create(item models.Category) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["insert"].Q)
-	fmt.Println(tsql)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -71,13 +71,13 @@ func CreateCategory(item models.Category) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateCategory(item models.Category) (int64, error) {
+func (db CategoryDB) Update(id string, item models.Category) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("ID", item.ID),
+		sql.Named("ID", id),
 		sql.Named("Name", item.Name))
 	if err != nil {
 		return -1, err
@@ -85,9 +85,9 @@ func UpdateCategory(item models.Category) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeleteCategory(id string) (int64, error) {
+func (db CategoryDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

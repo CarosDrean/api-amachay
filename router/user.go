@@ -1,15 +1,20 @@
 package router
 
 import (
-	user "github.com/CarosDrean/api-amachay/controllers"
+	"github.com/CarosDrean/api-amachay/controllers"
+	"github.com/CarosDrean/api-amachay/db"
 	mid "github.com/CarosDrean/api-amachay/middleware"
 	"github.com/gorilla/mux"
 )
 
 func userRoutes(s *mux.Router) {
-	s.HandleFunc("/", mid.CheckSecurity(user.GetSystemUsers)).Methods("GET")
-	s.HandleFunc("/{id}", mid.CheckSecurity(user.GetSystemUser)).Methods("GET")
-	s.HandleFunc("/", user.CreateSystemUser).Methods("POST")
-	s.HandleFunc("/{id}", mid.CheckSecurity(user.UpdateSystemUser)).Methods("PUT")
-	s.HandleFunc("/{id}", mid.CheckSecurity(user.DeleteSystemUser)).Methods("DELETE")
+	ctrl := controllers.UserController{
+		DB:       db.UserDB{},
+		PersonDB: db.PersonDB{},
+	}
+	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")
+	s.HandleFunc("/", mid.CheckSecurity(ctrl.Create)).Methods("POST")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Update)).Methods("PUT")
+	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Delete)).Methods("DELETE")
 }

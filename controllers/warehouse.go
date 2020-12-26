@@ -9,51 +9,55 @@ import (
 	"strconv"
 )
 
-func GetWarehouses(w http.ResponseWriter, r *http.Request) {
+type WarehouseController struct {
+	DB db.WarehouseDB
+}
+
+func (c WarehouseController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := db.GetWarehouses()
+	items := c.DB.GetAll()
 	_ = json.NewEncoder(w).Encode(items)
 }
 
-func GetWarehouse(w http.ResponseWriter, r *http.Request) {
+func (c WarehouseController) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := db.GetWarehouse(id)
+	items := c.DB.Get(id)
 
 	_ = json.NewEncoder(w).Encode(items[0])
 }
 
-func CreateWarehouse(w http.ResponseWriter, r *http.Request) {
+func (c WarehouseController) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var item models.Warehouse
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := db.CreateWarehouse(item)
+	result, err := c.DB.Create(item)
 	checkError(err, "Created", "Warehouse")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func UpdateWarehouse(w http.ResponseWriter, r *http.Request) {
+func (c WarehouseController) Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	var item models.Warehouse
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
-	result, err := db.UpdateWarehouse(item)
+	result, err := c.DB.Update(item)
 	checkError(err, "Updated", "Warehouse")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteWarehouse(w http.ResponseWriter, r *http.Request) {
+func (c WarehouseController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := db.DeleteWarehouse(id)
+	result, err := c.DB.Delete(id)
 	checkError(err, "Deleted", "Warehouse")
 
 	_ = json.NewEncoder(w).Encode(result)

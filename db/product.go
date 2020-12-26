@@ -5,14 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/query"
 	"log"
 )
 
-func GetProductsStock(idWarehouse int) [] models.Product {
+type ProductDB struct {}
+
+func (db ProductDB) GetAllStock(idWarehouse int) [] models.Product {
 	res := make([]models.Product, 0)
 	var item models.Product
 
-	tsql := fmt.Sprintf(queryProduct["list"].Q)
+	tsql := fmt.Sprintf(query.Product["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -33,11 +36,11 @@ func GetProductsStock(idWarehouse int) [] models.Product {
 	return res
 }
 
-func GetProducts() [] models.Product {
+func (db ProductDB) GetAll() [] models.Product {
 	res := make([]models.Product, 0)
 	var item models.Product
 
-	tsql := fmt.Sprintf(queryProduct["list"].Q)
+	tsql := fmt.Sprintf(query.Product["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -57,11 +60,11 @@ func GetProducts() [] models.Product {
 	return res
 }
 
-func GetProduct(id string) []models.Product {
+func (db ProductDB) Get(id string) []models.Product {
 	res := make([]models.Product, 0)
 	var item models.Product
 
-	tsql := fmt.Sprintf(queryProduct["get"].Q, id)
+	tsql := fmt.Sprintf(query.Product["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -81,9 +84,9 @@ func GetProduct(id string) []models.Product {
 	return res
 }
 
-func CreateProduct(item models.Product) (int64, error) {
+func (db ProductDB) Create(item models.Product) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryProduct["insert"].Q)
+	tsql := fmt.Sprintf(query.Product["insert"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -97,9 +100,10 @@ func CreateProduct(item models.Product) (int64, error) {
 	}
 	return result.RowsAffected()
 }
-func UpdateProduct(item models.Product) (int64, error) {
+
+func (db ProductDB) Update(item models.Product) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryProduct["update"].Q)
+	tsql := fmt.Sprintf(query.Product["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -115,9 +119,9 @@ func UpdateProduct(item models.Product) (int64, error) {
 	}
 	return result.RowsAffected()
 }
-func DeleteProduct(id string) (int64, error) {
+func (db ProductDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryProduct["delete"].Q)
+	tsql := fmt.Sprintf(query.Product["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

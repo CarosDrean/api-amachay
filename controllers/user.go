@@ -9,13 +9,18 @@ import (
 	"strconv"
 )
 
-func GetSystemUsers(w http.ResponseWriter, r *http.Request) {
+type UserController struct {
+	DB       db.UserDB
+	PersonDB db.PersonDB
+}
+
+func (c UserController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	res := make([]models.UserPerson, 0)
 
-	users := db.GetSystemUsers()
+	users := c.DB.GetAll()
 	for _, e := range users {
-		person := db.GetPerson(strconv.Itoa(int(e.IdPerson)))[0]
+		person := c.PersonDB.Get(strconv.Itoa(int(e.IdPerson)))[0]
 		item := models.UserPerson{
 			ID:          e.ID,
 			IdPerson:    int64(person.ID),
@@ -36,15 +41,15 @@ func GetSystemUsers(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(res)
 }
 
-func GetSystemUser(w http.ResponseWriter, r *http.Request) {
+func (c UserController) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := db.GetSystemUser(id)
+	items := c.DB.Get(id)
 	var userPerson models.UserPerson
 	if len(items) > 0 {
-		person := db.GetPerson(strconv.Itoa(int(items[0].IdPerson)))
+		person := c.PersonDB.Get(strconv.Itoa(int(items[0].IdPerson)))
 		userPerson = models.UserPerson{
 			ID:          items[0].ID,
 			IdPerson:    int64(person[0].ID),
@@ -64,7 +69,7 @@ func GetSystemUser(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(userPerson)
 }
 
-func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
+func (c UserController) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var userPerson models.UserPerson
@@ -78,7 +83,7 @@ func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
 		Dni:      userPerson.Dni,
 		Mail:     userPerson.Mail,
 	}
-	idPerson, err := db.CreatePerson(person)
+	idPerson, err := c.PersonDB.Create(person)
 	checkError(err, "Created", "Person")
 	user := models.SystemUser{
 		Username:    userPerson.Username,
@@ -87,12 +92,12 @@ func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
 		IdPerson:    idPerson,
 		IdWarehouse: userPerson.IdWarehouse,
 	}
-	result, err := db.CreateSystemUser(user)
+	result, err := c.DB.Create(user)
 	checkError(err, "Created", "User")
 
 	_ = json.NewEncoder(w).Encode(result)
 }
-func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
+func (c UserController) Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var params = mux.Vars(r)
@@ -114,7 +119,7 @@ func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 		Mail:     item.Mail,
 	}
 
-	result, err := db.UpdatePerson(person)
+	result, err := c.PersonDB.Update(person)
 
 	user := models.SystemUser{
 		ID:          item.ID,
@@ -125,19 +130,19 @@ func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 		IdWarehouse: item.IdWarehouse,
 	}
 
-	result, err = db.UpdateSystemUser(user)
+	result, err = c.DB.Update(user)
 
 	checkError(err, "Updated", "User")
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteSystemUser(w http.ResponseWriter, r *http.Request) {
+func (c UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	user := db.GetSystemUser(id)[0]
-	result, err := db.DeletePerson(strconv.Itoa(int(user.IdPerson)))
-	result, err = db.DeleteSystemUser(id)
+	user := c.DB.Get(id)[0]
+	result, err := c.PersonDB.Delete(strconv.Itoa(int(user.IdPerson)))
+	result, err = c.DB.Delete(id)
 	checkError(err, "Deleted", "User")
 
 	_ = json.NewEncoder(w).Encode(result)

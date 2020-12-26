@@ -6,16 +6,19 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/constants"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/query"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"strconv"
 )
 
-func GetSystemUsers() []models.SystemUser {
+type UserDB struct {}
+
+func (db UserDB) GetAll() []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
 
-	tsql := fmt.Sprintf(QuerySystemUser["list"].Q)
+	tsql := fmt.Sprintf(query.SystemUser["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -40,11 +43,11 @@ func GetSystemUsers() []models.SystemUser {
 	return res
 }
 
-func GetSystemUser(id string) []models.SystemUser {
+func (db UserDB) Get(id string) []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
 
-	tsql := fmt.Sprintf(QuerySystemUser["get"].Q, id)
+	tsql := fmt.Sprintf(query.SystemUser["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -69,9 +72,9 @@ func GetSystemUser(id string) []models.SystemUser {
 	return res
 }
 
-func CreateSystemUser(item models.SystemUser) (int64, error) {
+func (db UserDB) Create(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
+	tsql := fmt.Sprintf(query.SystemUser["insert"].Q)
 
 	item.Password = encrypt(item.Password)
 
@@ -94,11 +97,11 @@ func CreateSystemUser(item models.SystemUser) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateSystemUser(item models.SystemUser) (int64, error) {
+func (db UserDB) Update(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QuerySystemUser["update"].Q)
+	tsql := fmt.Sprintf(query.SystemUser["update"].Q)
 
-	user := GetSystemUser(strconv.Itoa(item.ID))[0]
+	user := db.Get(strconv.Itoa(item.ID))[0]
 	if user.Password != item.Password {
 		item.Password = encrypt(item.Password)
 	}
@@ -123,9 +126,9 @@ func UpdateSystemUser(item models.SystemUser) (int64, error) {
 	}
 	return result.RowsAffected()
 }
-func DeleteSystemUser(id string) (int64, error) {
+func (db UserDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QuerySystemUser["delete"].Q)
+	tsql := fmt.Sprintf(query.SystemUser["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -140,7 +143,7 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
 
-	tsql := fmt.Sprintf(QuerySystemUser["getUserName"].Q, userName)
+	tsql := fmt.Sprintf(query.SystemUser["getUserName"].Q, userName)
 
 	rows, err := DB.Query(tsql)
 
