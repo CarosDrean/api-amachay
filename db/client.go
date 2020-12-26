@@ -6,57 +6,38 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/CarosDrean/api-amachay/query"
-	"log"
 )
 
-type ClientDB struct {}
+type ClientDB struct {
+	Ctx string
+}
 
-func (db ClientDB) GetAll() []models.Client {
+func (db ClientDB) GetAll() ([]models.Client, error) {
 	res := make([]models.Client, 0)
-	var item models.Client
 
 	tsql := fmt.Sprintf(query.Client["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Type)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
 }
 
-func (db ClientDB) Get(id string) []models.Client {
+func (db ClientDB) Get(id string) (models.Client, error) {
 	res := make([]models.Client, 0)
-	var item models.Client
 
 	tsql := fmt.Sprintf(query.Client["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Type)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return models.Client{}, err
 	}
 	defer rows.Close()
-	return res
+	return res[0], nil
 }
 
 
@@ -100,4 +81,22 @@ func (db ClientDB) Delete(id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func (db ClientDB) scan(rows *sql.Rows, err error, res *[]models.Client, ctx string, situation string) error {
+	var item models.Client
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Type)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
 }

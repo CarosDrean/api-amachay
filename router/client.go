@@ -10,7 +10,7 @@ import (
 func clientRoutes(s *mux.Router) {
 	ctrl := controllers.ClientsController{
 		DB:       db.ClientDB{},
-		PersonDB: db.PersonDB{},
+		PersonDB: db.PersonDB{Ctx: "PersonDB"},
 	}
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")

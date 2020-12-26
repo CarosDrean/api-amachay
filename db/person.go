@@ -6,56 +6,39 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/CarosDrean/api-amachay/query"
-	"log"
 )
 
-type PersonDB struct {}
+type PersonDB struct {
+	Ctx string
+}
 
-func (db PersonDB) GetAll() []models.Person {
+func (db PersonDB) GetAll() ([]models.Person, error) {
 	res := make([]models.Person, 0)
-	var item models.Person
 
 	tsql := fmt.Sprintf(query.Person["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
+		return res, err
 	}
-	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else {
-			res = append(res, item)
-		}
-	}
+
 	defer rows.Close()
-	return res
+	return res, nil
 }
-func (db PersonDB) Get(id string) []models.Person {
+
+func (db PersonDB) Get(id string) (models.Person, error) {
 	res := make([]models.Person, 0)
-	var item models.Person
 
 	tsql := fmt.Sprintf(query.Person["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "Get")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else {
-			res = append(res, item)
-		}
+		return models.Person{}, err
 	}
 	defer rows.Close()
-	return res
+	return res[0], nil
 }
 
 func (db PersonDB) Create(item models.Person) (int64, error) {
@@ -85,13 +68,13 @@ func (db PersonDB) Create(item models.Person) (int64, error) {
 	return newID, nil
 }
 
-func (db PersonDB) Update(item models.Person) (int64, error) {
+func (db PersonDB) Update(id string, item models.Person) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(query.Person["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("ID", item.ID),
+		sql.Named("ID", id),
 		sql.Named("Name", item.Name),
 		sql.Named("LastName", item.LastName),
 		sql.Named("Cel", item.Cel),
@@ -116,4 +99,22 @@ func (db PersonDB) Delete(id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func (db PersonDB) scan(rows *sql.Rows, err error, res *[]models.Person, ctx string, situation string) error {
+	var item models.Person
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
 }

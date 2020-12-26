@@ -20,7 +20,7 @@ func (c UserController) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	users := c.DB.GetAll()
 	for _, e := range users {
-		person := c.PersonDB.Get(strconv.Itoa(int(e.IdPerson)))[0]
+		person, _ := c.PersonDB.Get(strconv.Itoa(int(e.IdPerson)))
 		item := models.UserPerson{
 			ID:          e.ID,
 			IdPerson:    int64(person.ID),
@@ -49,20 +49,20 @@ func (c UserController) Get(w http.ResponseWriter, r *http.Request) {
 	items := c.DB.Get(id)
 	var userPerson models.UserPerson
 	if len(items) > 0 {
-		person := c.PersonDB.Get(strconv.Itoa(int(items[0].IdPerson)))
+		person, _ := c.PersonDB.Get(strconv.Itoa(int(items[0].IdPerson)))
 		userPerson = models.UserPerson{
 			ID:          items[0].ID,
-			IdPerson:    int64(person[0].ID),
+			IdPerson:    int64(person.ID),
 			Username:    items[0].Username,
 			Password:    items[0].Password,
-			Cel:         person[0].Cel,
+			Cel:         person.Cel,
 			Role:        items[0].Role,
-			Name:        person[0].Name,
-			LastName:    person[0].LastName,
-			Phone:       person[0].Phone,
-			Address:     person[0].Address,
-			Dni:         person[0].Dni,
-			Mail:        person[0].Mail,
+			Name:        person.Name,
+			LastName:    person.LastName,
+			Phone:       person.Phone,
+			Address:     person.Address,
+			Dni:         person.Dni,
+			Mail:        person.Mail,
 			IdWarehouse: items[0].IdWarehouse,
 		}
 	}
@@ -119,7 +119,7 @@ func (c UserController) Update(w http.ResponseWriter, r *http.Request) {
 		Mail:     item.Mail,
 	}
 
-	result, err := c.PersonDB.Update(person)
+	result, err := c.PersonDB.Update(strconv.Itoa(int(item.IdPerson)), person)
 
 	user := models.SystemUser{
 		ID:          item.ID,

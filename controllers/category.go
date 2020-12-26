@@ -17,6 +17,7 @@ func (c CategoryController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	items, err := c.DB.GetAll()
 	if err != nil {
+		// hay que probar imprimiendo err y err.Error()
 		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener todos, error: %v", err))
 		return
 	}

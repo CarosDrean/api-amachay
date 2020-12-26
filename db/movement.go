@@ -32,7 +32,7 @@ func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movem
 			checkError(err, "GetWarehouseFilter", db.Ctx, "Scan rows")
 			return res, err
 		} else{
-			item.Product = GetProduct(strconv.Itoa(item.IdProduct))[0].Name
+			item.Product = ProductDB{}.Get(strconv.Itoa(item.IdProduct))[0].Name
 			res = append(res, item)
 		}
 	}

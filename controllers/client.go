@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
@@ -18,9 +19,14 @@ func (c ClientsController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	res := make([]models.ClientPerson, 0)
 
-	clients := c.DB.GetAll()
+	clients, err := c.DB.GetAll()
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener todos, error: %v", err))
+		return
+	}
 	for _, e := range clients {
-		person := c.PersonDB.Get(strconv.Itoa(int(e.IdPerson)))[0]
+		person, _ := c.PersonDB.Get(strconv.Itoa(int(e.IdPerson)))
+
 		item := models.ClientPerson{
 			ID:       e.ID,
 			IdPerson: int64(person.ID),
@@ -43,22 +49,24 @@ func (c ClientsController) Get(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := c.DB.Get(id)
-	var userPerson models.ClientPerson
-	if len(items) > 0 {
-		person := c.PersonDB.Get(strconv.Itoa(int(items[0].IdPerson)))
-		userPerson = models.ClientPerson{
-			ID:       items[0].ID,
-			IdPerson: int64(person[0].ID),
-			Cel:      person[0].Cel,
-			Type:     items[0].Type,
-			Name:     person[0].Name,
-			LastName: person[0].LastName,
-			Phone:    person[0].Phone,
-			Address:  person[0].Address,
-			Dni:      person[0].Dni,
-			Mail:     person[0].Mail,
-		}
+	item, err := c.DB.Get(id)
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener, error: %v", err))
+		return
+	}
+
+	person, _ := c.PersonDB.Get(strconv.Itoa(int(item.IdPerson)))
+	userPerson := models.ClientPerson{
+		ID:       item.ID,
+		IdPerson: int64(person.ID),
+		Cel:      person.Cel,
+		Type:     item.Type,
+		Name:     person.Name,
+		LastName: person.LastName,
+		Phone:    person.Phone,
+		Address:  person.Address,
+		Dni:      person.Dni,
+		Mail:     person.Mail,
 	}
 	_ = json.NewEncoder(w).Encode(userPerson)
 }
@@ -78,13 +86,19 @@ func (c ClientsController) Create(w http.ResponseWriter, r *http.Request) {
 		Mail:     item.Mail,
 	}
 	idPerson, err := c.PersonDB.Create(person)
-	checkError(err, "Created", "Person")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear Person, error: %v", err))
+		return
+	}
 	client := models.Client{
 		IdPerson: idPerson,
 		Type:     item.Type,
 	}
 	result, err := c.DB.Create(client)
-	checkError(err, "Created", "Client")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -109,7 +123,11 @@ func (c ClientsController) Update(w http.ResponseWriter, r *http.Request) {
 		Mail:     item.Mail,
 	}
 
-	result, err := c.PersonDB.Update(person)
+	result, err := c.PersonDB.Update(strconv.Itoa(int(item.IdPerson)), person)
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al actualizar Person, error: %v", err))
+		return
+	}
 
 	client := models.Client{
 		ID:       item.ID,
@@ -119,7 +137,10 @@ func (c ClientsController) Update(w http.ResponseWriter, r *http.Request) {
 
 	result, err = c.DB.Update(client)
 
-	checkError(err, "Updated", "Client")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al actualizar, error: %v", err))
+		return
+	}
 	_ = json.NewEncoder(w).Encode(result)
 }
 
@@ -127,10 +148,17 @@ func (c ClientsController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	client := c.DB.Get(id)[0]
+	client, _ := c.DB.Get(id)
 	result, err := c.PersonDB.Delete(strconv.Itoa(int(client.IdPerson)))
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al eliminar Person, error: %v", err))
+		return
+	}
 	result, err = c.DB.Delete(id)
-	checkError(err, "Deleted", "Client")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al eliminar, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
