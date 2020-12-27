@@ -5,17 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
-	"github.com/CarosDrean/api-amachay/query"
 )
 
 type ClientDB struct {
 	Ctx string
+	Query models.QueryDB
 }
 
 func (db ClientDB) GetAll() ([]models.Client, error) {
 	res := make([]models.Client, 0)
 
-	tsql := fmt.Sprintf(query.Client["list"].Q)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
@@ -29,7 +29,7 @@ func (db ClientDB) GetAll() ([]models.Client, error) {
 func (db ClientDB) Get(id string) (models.Client, error) {
 	res := make([]models.Client, 0)
 
-	tsql := fmt.Sprintf(query.Client["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
@@ -43,7 +43,7 @@ func (db ClientDB) Get(id string) (models.Client, error) {
 
 func (db ClientDB) Create(item models.Client) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Client["insert"].Q)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -57,7 +57,7 @@ func (db ClientDB) Create(item models.Client) (int64, error) {
 
 func (db ClientDB) Update(id string, item models.Client) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Client["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -72,7 +72,7 @@ func (db ClientDB) Update(id string, item models.Client) (int64, error) {
 
 func (db ClientDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Client["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

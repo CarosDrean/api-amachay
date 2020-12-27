@@ -5,17 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
-	"github.com/CarosDrean/api-amachay/query"
 )
 
 type PersonDB struct {
-	Ctx string
+	Ctx   string
+	Query models.QueryDB
 }
 
 func (db PersonDB) GetAll() ([]models.Person, error) {
 	res := make([]models.Person, 0)
 
-	tsql := fmt.Sprintf(query.Person["list"].Q)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
@@ -30,7 +30,7 @@ func (db PersonDB) GetAll() ([]models.Person, error) {
 func (db PersonDB) Get(id string) (models.Person, error) {
 	res := make([]models.Person, 0)
 
-	tsql := fmt.Sprintf(query.Person["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "Get")
@@ -43,7 +43,7 @@ func (db PersonDB) Get(id string) (models.Person, error) {
 
 func (db PersonDB) Create(item models.Person) (int64, error) {
 	ctx := context.Background()
-	tsql := query.Person["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
+	tsql := db.Query["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
 
 	stmt, err := DB.Prepare(tsql)
 	if err != nil {
@@ -70,7 +70,7 @@ func (db PersonDB) Create(item models.Person) (int64, error) {
 
 func (db PersonDB) Update(id string, item models.Person) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Person["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -90,7 +90,7 @@ func (db PersonDB) Update(id string, item models.Person) (int64, error) {
 
 func (db PersonDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Person["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

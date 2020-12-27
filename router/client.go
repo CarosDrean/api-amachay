@@ -4,13 +4,14 @@ import (
 	"github.com/CarosDrean/api-amachay/controllers"
 	"github.com/CarosDrean/api-amachay/db"
 	mid "github.com/CarosDrean/api-amachay/middleware"
+	"github.com/CarosDrean/api-amachay/query"
 	"github.com/gorilla/mux"
 )
 
 func clientRoutes(s *mux.Router) {
 	ctrl := controllers.ClientsController{
 		DB:       db.ClientDB{},
-		PersonDB: db.PersonDB{Ctx: "PersonDB"},
+		PersonDB: db.PersonDB{Ctx: "PersonDB", Query: query.Client},
 	}
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")

@@ -13,13 +13,14 @@ import (
 )
 
 type UserDB struct {
-	Ctx string
+	Ctx   string
+	Query models.QueryDB
 }
 
 func (db UserDB) GetAll() ([]models.SystemUser, error) {
 	res := make([]models.SystemUser, 0)
 
-	tsql := fmt.Sprintf(query.SystemUser["list"].Q)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
@@ -33,7 +34,7 @@ func (db UserDB) GetAll() ([]models.SystemUser, error) {
 func (db UserDB) Get(id string) (models.SystemUser, error) {
 	res := make([]models.SystemUser, 0)
 
-	tsql := fmt.Sprintf(query.SystemUser["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
@@ -46,7 +47,7 @@ func (db UserDB) Get(id string) (models.SystemUser, error) {
 
 func (db UserDB) Create(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.SystemUser["insert"].Q)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
 
 	item.Password = encrypt(item.Password)
 
@@ -71,7 +72,7 @@ func (db UserDB) Create(item models.SystemUser) (int64, error) {
 
 func (db UserDB) Update(id string, item models.SystemUser) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.SystemUser["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 
 	user, _ := db.Get(strconv.Itoa(item.ID))
 	if user.Password != item.Password {
@@ -100,7 +101,7 @@ func (db UserDB) Update(id string, item models.SystemUser) (int64, error) {
 }
 func (db UserDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.SystemUser["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

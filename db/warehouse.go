@@ -5,17 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
-	"github.com/CarosDrean/api-amachay/query"
 )
 
 type WarehouseDB struct {
-	Ctx string
+	Ctx   string
+	Query models.QueryDB
 }
 
 func (db WarehouseDB) GetAll() ([]models.Warehouse, error) {
 	res := make([]models.Warehouse, 0)
 
-	tsql := fmt.Sprintf(query.Warehouse["list"].Q)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
@@ -29,7 +29,7 @@ func (db WarehouseDB) GetAll() ([]models.Warehouse, error) {
 func (db WarehouseDB) Get(id string) (models.Warehouse, error) {
 	res := make([]models.Warehouse, 0)
 
-	tsql := fmt.Sprintf(query.Warehouse["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
@@ -40,10 +40,9 @@ func (db WarehouseDB) Get(id string) (models.Warehouse, error) {
 	return res[0], nil
 }
 
-
 func (db WarehouseDB) Create(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Warehouse["insert"].Q)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
 	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
@@ -59,7 +58,7 @@ func (db WarehouseDB) Create(item models.Warehouse) (int64, error) {
 
 func (db WarehouseDB) Update(id string, item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Warehouse["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -75,7 +74,7 @@ func (db WarehouseDB) Update(id string, item models.Warehouse) (int64, error) {
 
 func (db WarehouseDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Warehouse["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

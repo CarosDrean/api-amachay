@@ -4,12 +4,13 @@ import (
 	"github.com/CarosDrean/api-amachay/controllers"
 	"github.com/CarosDrean/api-amachay/db"
 	mid "github.com/CarosDrean/api-amachay/middleware"
+	"github.com/CarosDrean/api-amachay/query"
 	"github.com/gorilla/mux"
 )
 
 func productRoutes(s *mux.Router)  {
 	ctrl := controllers.ProductController{
-		DB: db.ProductDB{Ctx: "Product DB"},
+		DB: db.ProductDB{Ctx: "Product DB", Query: query.Movement},
 	}
 	s.HandleFunc("/all/{id}", mid.CheckSecurity(ctrl.GetAllStock)).Methods("GET")
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")

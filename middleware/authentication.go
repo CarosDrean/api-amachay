@@ -112,8 +112,8 @@ func Login(w http.ResponseWriter, r *http.Request){
 
 	switch stateLogin {
 	case constants.Accept:
-		systemUser := db.UserDB{}.Get(id)
-		userResult := models.UserResult{ID: id, Role: systemUser[0].Role}
+		systemUser, _ := db.UserDB{}.Get(id)
+		userResult := models.UserResult{ID: id, Role: systemUser.Role}
 		token := GenerateJWT(userResult)
 		result := models.ResponseToken{Token: token}
 		jsonResult, err := json.Marshal(result)
