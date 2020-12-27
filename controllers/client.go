@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
@@ -21,7 +20,7 @@ func (c ClientsController) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	clients, err := c.DB.GetAll()
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener todos, error: %v", err))
+		returnErr(w, err, "obtener todos")
 		return
 	}
 	for _, e := range clients {
@@ -51,7 +50,7 @@ func (c ClientsController) Get(w http.ResponseWriter, r *http.Request) {
 
 	item, err := c.DB.Get(id)
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener, error: %v", err))
+		returnErr(w, err, "obtener")
 		return
 	}
 
@@ -87,7 +86,7 @@ func (c ClientsController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	idPerson, err := c.PersonDB.Create(person)
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear Person, error: %v", err))
+		returnErr(w, err, "crear person")
 		return
 	}
 	client := models.Client{
@@ -96,7 +95,7 @@ func (c ClientsController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	result, err := c.DB.Create(client)
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear, error: %v", err))
+		returnErr(w, err, "crear")
 		return
 	}
 
@@ -124,7 +123,7 @@ func (c ClientsController) Update(w http.ResponseWriter, r *http.Request) {
 
 	result, err := c.PersonDB.Update(strconv.Itoa(int(item.IdPerson)), person)
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al actualizar Person, error: %v", err))
+		returnErr(w, err, "actualizar person")
 		return
 	}
 
@@ -137,7 +136,7 @@ func (c ClientsController) Update(w http.ResponseWriter, r *http.Request) {
 	result, err = c.DB.Update(id, client)
 
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al actualizar, error: %v", err))
+		returnErr(w, err, "actualizar")
 		return
 	}
 	_ = json.NewEncoder(w).Encode(result)
@@ -150,12 +149,12 @@ func (c ClientsController) Delete(w http.ResponseWriter, r *http.Request) {
 	client, _ := c.DB.Get(id)
 	result, err := c.PersonDB.Delete(strconv.Itoa(int(client.IdPerson)))
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al eliminar Person, error: %v", err))
+		returnErr(w, err, "eliminar person")
 		return
 	}
 	result, err = c.DB.Delete(id)
 	if err != nil {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al eliminar, error: %v", err))
+		returnErr(w, err, "eliminar")
 		return
 	}
 
