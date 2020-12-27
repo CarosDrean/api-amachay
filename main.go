@@ -36,7 +36,6 @@ func main ()  {
 	})
 
 	port := os.Getenv("PORT")
-
 	if port == "" {
 		port = constants.PORT //localhost
 	}
@@ -44,7 +43,6 @@ func main ()  {
 	handler := c.Handler(r)
 
 	fmt.Println("Server online!")
-
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
 

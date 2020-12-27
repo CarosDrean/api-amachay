@@ -17,24 +17,12 @@ type MovementDB struct{
 
 func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movement, error) {
 	res := make([]models.Movement, 0)
-	var item models.Movement
 
 	tsql := fmt.Sprintf(db.Query["listWarehouseFilter"].Q, filter.ID, filter.Type, filter.DateFrom, filter.DateTo)
 	rows, err := DB.Query(tsql)
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllWarehouseFilter")
 	if err != nil {
-		checkError(err, "GetAllWarehouseFilter", db.Ctx, "Reading rows")
 		return res, err
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &item.IdClient)
-		if err != nil {
-			checkError(err, "GetWarehouseFilter", db.Ctx, "Scan rows")
-			return res, err
-		} else{
-			item.Product = ProductDB{}.Get(strconv.Itoa(item.IdProduct))[0].Name
-			res = append(res, item)
-		}
 	}
 	defer rows.Close()
 	return res, err
@@ -42,24 +30,13 @@ func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movem
 
 func (db MovementDB) GetAllWarehouse(idWarehouse string) ([]models.Movement, error) {
 	res := make([]models.Movement, 0)
-	var item models.Movement
 
 	tsql := fmt.Sprintf(db.Query["listWarehouseId"].Q, idWarehouse)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllWarehouse")
 	if err != nil {
-		checkError(err, "GetAllWarehouse", db.Ctx, "Reading rows")
 		return res, err
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &item.IdClient)
-		if err != nil {
-			checkError(err, "GetAllWarehouse", db.Ctx, "Scan rows")
-			return res, err
-		} else{
-			res = append(res, item)
-		}
 	}
 	defer rows.Close()
 	return res, err
@@ -67,49 +44,30 @@ func (db MovementDB) GetAllWarehouse(idWarehouse string) ([]models.Movement, err
 
 func (db MovementDB) GetAll() ([]models.Movement, error) {
 	res := make([]models.Movement, 0)
-	var item models.Movement
 
 	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		checkError(err, "GetAll", db.Ctx, "Reading rows")
 		return res, err
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &item.IdClient)
-		if err != nil {
-			checkError(err, "GetAll", db.Ctx, "Scan rows")
-			return res, err
-		} else{
-			res = append(res, item)
-		}
 	}
 	defer rows.Close()
 	return res, nil
 }
 
 func (db MovementDB) Get(id string) (models.Movement, error) {
-	var item models.Movement
+	res := make([]models.Movement, 0)
 
 	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		checkError(err, "Get", db.Ctx, "Reading rows")
-		return item, err
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &item.IdClient)
-		if err != nil {
-			checkError(err, "Get", db.Ctx, "Scan rows")
-			return item, err
-		}
+		return models.Movement{}, err
 	}
 	defer rows.Close()
-	return item, nil
+	return res[0], nil
 }
 
 func (db MovementDB) Create(item models.Movement) (int64, error) {
@@ -170,7 +128,7 @@ func (db MovementDB) Delete(id string) (int64, error) {
 	return result.RowsAffected()
 }
 
-func GetStock(idWarehouse int, idProduct int) float64 {
+func GetStock(idWarehouse string, idProduct int) float64 {
 	var item float64
 
 	tsql := fmt.Sprintf(query.Movement["stock"].Q, idWarehouse, idProduct)
@@ -191,4 +149,25 @@ func GetStock(idWarehouse int, idProduct int) float64 {
 	}
 	defer rows.Close()
 	return item
+}
+
+func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx string, situation string) error {
+	var item models.Movement
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
+			&item.IdUser, &item.IdClient)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			product, _ := ProductDB{}.Get(strconv.Itoa(item.IdProduct))
+			item.Product = product.Name
+			*res = append(*res, item)
+		}
+	}
+	return nil
 }

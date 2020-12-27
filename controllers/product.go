@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
@@ -17,14 +18,21 @@ func (c ProductController) GetAllStock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	idI, _ := strconv.Atoi(id)
-	items := c.DB.GetAllStock(idI)
+	items, err := c.DB.GetAllStock(id)
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener todos con stock, error: %v", err))
+		return
+	}
 	_ = json.NewEncoder(w).Encode(items)
 }
 
 func (c ProductController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := c.DB.GetAll()
+	items, err := c.DB.GetAll()
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener todos, error: %v", err))
+		return
+	}
 	_ = json.NewEncoder(w).Encode(items)
 }
 
@@ -33,9 +41,13 @@ func (c ProductController) Get(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := c.DB.Get(id)
+	item, err := c.DB.Get(id)
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener, error: %v", err))
+		return
+	}
 
-	_ = json.NewEncoder(w).Encode(items[0])
+	_ = json.NewEncoder(w).Encode(item)
 }
 
 func (c ProductController) Create(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +56,10 @@ func (c ProductController) Create(w http.ResponseWriter, r *http.Request) {
 	var item models.Product
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	result, err := c.DB.Create(item)
-	checkError(err, "Created", "Product")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -59,7 +74,10 @@ func (c ProductController) Update(w http.ResponseWriter, r *http.Request) {
 
 	item.ID, _ = strconv.Atoi(id)
 	result, err := c.DB.Update(item)
-	checkError(err, "Updated", "Product")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al actualizar, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -69,7 +87,10 @@ func (c ProductController) Delete(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	result, err := c.DB.Delete(id)
-	checkError(err, "Deleted", "Product")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al eliminar, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }

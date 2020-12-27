@@ -6,82 +6,52 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/CarosDrean/api-amachay/query"
-	"log"
 )
 
-type ProductDB struct {}
+type ProductDB struct {
+	Ctx string
+}
 
-func (db ProductDB) GetAllStock(idWarehouse int) [] models.Product {
+func (db ProductDB) GetAllStock(idWarehouse string) ([]models.Product, error) {
 	res := make([]models.Product, 0)
-	var item models.Product
 
 	tsql := fmt.Sprintf(query.Product["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllStock", idWarehouse)
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			item.Stock = GetStock(idWarehouse, item.ID)
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
 }
 
-func (db ProductDB) GetAll() [] models.Product {
+func (db ProductDB) GetAll() ([]models.Product, error) {
 	res := make([]models.Product, 0)
-	var item models.Product
 
 	tsql := fmt.Sprintf(query.Product["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllStock", "")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
 }
 
-func (db ProductDB) Get(id string) []models.Product {
+func (db ProductDB) Get(id string) (models.Product, error) {
 	res := make([]models.Product, 0)
-	var item models.Product
 
 	tsql := fmt.Sprintf(query.Product["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllStock", "")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return models.Product{}, err
 	}
 	defer rows.Close()
-	return res
+	return res[0], nil
 }
 
 func (db ProductDB) Create(item models.Product) (int64, error) {
@@ -131,3 +101,26 @@ func (db ProductDB) Delete(id string) (int64, error) {
 	}
 	return result.RowsAffected()
 }
+
+func (db ProductDB) scan(rows *sql.Rows, err error, res *[]models.Product, ctx string,
+	situation string, extra string) error {
+	var item models.Product
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			if extra != "" {
+				item.Stock = GetStock(extra, item.ID)
+			}
+			*res = append(*res, item)
+		}
+	}
+	return nil
+}
+

@@ -55,13 +55,13 @@ func (db ClientDB) Create(item models.Client) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (db ClientDB) Update(item models.Client) (int64, error) {
+func (db ClientDB) Update(id string, item models.Client) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(query.Client["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("ID", item.ID),
+		sql.Named("ID", id),
 		sql.Named("IdPerson", item.IdPerson),
 		sql.Named("Type", item.Type))
 	if err != nil {

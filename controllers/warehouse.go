@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 )
 
 type WarehouseController struct {
@@ -15,7 +15,11 @@ type WarehouseController struct {
 
 func (c WarehouseController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := c.DB.GetAll()
+	items, err := c.DB.GetAll()
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener todos, error: %v", err))
+		return
+	}
 	_ = json.NewEncoder(w).Encode(items)
 }
 
@@ -24,9 +28,13 @@ func (c WarehouseController) Get(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := c.DB.Get(id)
+	item, err := c.DB.Get(id)
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener, error: %v", err))
+		return
+	}
 
-	_ = json.NewEncoder(w).Encode(items[0])
+	_ = json.NewEncoder(w).Encode(item)
 }
 
 func (c WarehouseController) Create(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +43,10 @@ func (c WarehouseController) Create(w http.ResponseWriter, r *http.Request) {
 	var item models.Warehouse
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	result, err := c.DB.Create(item)
-	checkError(err, "Created", "Warehouse")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -46,9 +57,11 @@ func (c WarehouseController) Update(w http.ResponseWriter, r *http.Request) {
 	id, _ := params["id"]
 	var item models.Warehouse
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	item.ID, _ = strconv.Atoi(id)
-	result, err := c.DB.Update(item)
-	checkError(err, "Updated", "Warehouse")
+	result, err := c.DB.Update(id, item)
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al actualizar, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
@@ -58,7 +71,10 @@ func (c WarehouseController) Delete(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	result, err := c.DB.Delete(id)
-	checkError(err, "Deleted", "Warehouse")
+	if err != nil {
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al eliminar, error: %v", err))
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }

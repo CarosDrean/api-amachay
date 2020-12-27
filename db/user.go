@@ -12,64 +12,36 @@ import (
 	"strconv"
 )
 
-type UserDB struct {}
+type UserDB struct {
+	Ctx string
+}
 
-func (db UserDB) GetAll() []models.SystemUser {
+func (db UserDB) GetAll() ([]models.SystemUser, error) {
 	res := make([]models.SystemUser, 0)
-	var item models.SystemUser
 
 	tsql := fmt.Sprintf(query.SystemUser["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next() {
-		var idWarehouse sql.NullString
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &idWarehouse)
-		item.IdWarehouse = -1
-		if idWarehouse.Valid {
-			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
-		}
-		if err != nil {
-			log.Println(err)
-			return res
-		} else {
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
 }
 
-func (db UserDB) Get(id string) []models.SystemUser {
+func (db UserDB) Get(id string) (models.SystemUser, error) {
 	res := make([]models.SystemUser, 0)
-	var item models.SystemUser
 
 	tsql := fmt.Sprintf(query.SystemUser["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows 1: " + err.Error())
-		return res
-	}
-	for rows.Next() {
-		var idWarehouse sql.NullString
-		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &idWarehouse)
-		item.IdWarehouse = -1
-		if idWarehouse.Valid {
-			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
-		}
-		if err != nil {
-			log.Println(err)
-			return res
-		} else {
-			res = append(res, item)
-		}
+		return models.SystemUser{}, err
 	}
 	defer rows.Close()
-	return res
+	return res[0], nil
 }
 
 func (db UserDB) Create(item models.SystemUser) (int64, error) {
@@ -97,11 +69,11 @@ func (db UserDB) Create(item models.SystemUser) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (db UserDB) Update(item models.SystemUser) (int64, error) {
+func (db UserDB) Update(id string, item models.SystemUser) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(query.SystemUser["update"].Q)
 
-	user := db.Get(strconv.Itoa(item.ID))[0]
+	user, _ := db.Get(strconv.Itoa(item.ID))
 	if user.Password != item.Password {
 		item.Password = encrypt(item.Password)
 	}
@@ -113,7 +85,7 @@ func (db UserDB) Update(item models.SystemUser) (int64, error) {
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("ID", item.ID),
+		sql.Named("ID", id),
 		sql.Named("UserName", item.Username),
 		sql.Named("Password", item.Password),
 		sql.Named("Rol", item.Role),
@@ -196,4 +168,24 @@ func encrypt(password string) string {
 		return ""
 	}
 	return string(hashedPassword)
+}
+
+func (db UserDB) scan(rows *sql.Rows, err error, res *[]models.SystemUser, ctx string, situation string) error {
+	var item models.SystemUser
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		var idWarehouse sql.NullInt64
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Username, &item.Password, &item.Role, &idWarehouse)
+		item.IdWarehouse = int(idWarehouse.Int64)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
 }

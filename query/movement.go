@@ -10,7 +10,7 @@ var movement = models.TableDB{
 var Movement = models.QueryDB{
 	"get":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " + movement.Fields[0] + " =%s;"},
 	"list":  {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + ";"},
-	"stock": {Q: "select sum(Quantity) as stock from MOVEMENT where IdWareHouse = %d and IdProduct = %d;"},
+	"stock": {Q: "select sum(Quantity) as stock from MOVEMENT where IdWareHouse = %s and IdProduct = %d;"},
 	"listWarehouseId": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
 		movement.Fields[2] + " = %s;"},
 	"listWarehouseFilter": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +

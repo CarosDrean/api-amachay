@@ -9,7 +9,7 @@ import (
 
 func warehouseRoutes(s *mux.Router) {
 	ctrl := controllers.WarehouseController{
-		DB: db.WarehouseDB{},
+		DB: db.WarehouseDB{Ctx: "Warehouse DB"},
 	}
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")

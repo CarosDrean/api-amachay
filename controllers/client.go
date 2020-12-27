@@ -110,7 +110,6 @@ func (c ClientsController) Update(w http.ResponseWriter, r *http.Request) {
 
 	var item models.ClientPerson
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	item.ID, _ = strconv.Atoi(id)
 
 	person := models.Person{
 		ID:       int(item.IdPerson),
@@ -135,7 +134,7 @@ func (c ClientsController) Update(w http.ResponseWriter, r *http.Request) {
 		IdPerson: item.IdPerson,
 	}
 
-	result, err = c.DB.Update(client)
+	result, err = c.DB.Update(id, client)
 
 	if err != nil {
 		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al actualizar, error: %v", err))

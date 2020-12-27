@@ -9,7 +9,7 @@ import (
 
 type CategoryDB struct {
 	Ctx string // contexto, lugar, se usa para el log del error
-	Query models.QueryDB
+	Query models.QueryDB // son los string de consulta a la BD
 }
 
 func (db CategoryDB) GetAll() ([]models.Category, error) {
