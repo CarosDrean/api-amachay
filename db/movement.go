@@ -164,7 +164,10 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 			checkError(err, situation, ctx, "Scan rows")
 			return err
 		} else {
-			product, _ := ProductDB{}.Get(strconv.Itoa(item.IdProduct))
+			product, _ := ProductDB{
+				Ctx:   "Movement",
+				Query: query.Product,
+			}.Get(strconv.Itoa(item.IdProduct))
 			item.Product = product.Name
 			*res = append(*res, item)
 		}

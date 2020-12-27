@@ -14,47 +14,29 @@ type CategoryDB struct {
 
 func (db CategoryDB) GetAll() ([]models.Category, error) {
 	res := make([]models.Category, 0)
-	var item models.Category
 
 	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		checkError(err, "GetAll", db.Ctx, "Reading rows")
 		return res, err
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name)
-		if err != nil {
-			checkError(err, "GetAll", db.Ctx, "Scan rows")
-			return res, err
-		} else{
-			res = append(res, item)
-		}
 	}
 	defer rows.Close()
 	return res, nil
 }
 
 func (db CategoryDB) Get(id string) (models.Category, error) {
-	var item models.Category
-
+	res := make([]models.Category, 0)
 	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "Get")
 	if err != nil {
-		checkError(err, "GetAll", db.Ctx, "Reading rows")
-		return item, err
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name)
-		if err != nil {
-			checkError(err, "Get", db.Ctx, "Scan rows")
-			return item, err
-		}
+		return models.Category{}, err
 	}
 	defer rows.Close()
-	return item, nil
+	return res[0], nil
 }
 
 
@@ -96,4 +78,22 @@ func (db CategoryDB) Delete(id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func (db CategoryDB) scan(rows *sql.Rows, err error, res *[]models.Category, ctx string, situation string) error {
+	var item models.Category
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
 }

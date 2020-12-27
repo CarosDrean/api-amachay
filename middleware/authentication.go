@@ -7,6 +7,7 @@ import (
 	"github.com/CarosDrean/api-amachay/constants"
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/query"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
 	"io/ioutil"
@@ -112,7 +113,7 @@ func Login(w http.ResponseWriter, r *http.Request){
 
 	switch stateLogin {
 	case constants.Accept:
-		systemUser, _ := db.UserDB{}.Get(id)
+		systemUser, _ := db.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(id)
 		userResult := models.UserResult{ID: id, Role: systemUser.Role}
 		token := GenerateJWT(userResult)
 		result := models.ResponseToken{Token: token}

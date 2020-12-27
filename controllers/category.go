@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
@@ -45,7 +44,6 @@ func (c CategoryController) Create(w http.ResponseWriter, r *http.Request) {
 	result, err := c.DB.Create(item)
 	if err != nil {
 		returnErr(w, err, "crear")
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear, error: %s", err.Error()))
 		return
 	}
 
