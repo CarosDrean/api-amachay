@@ -4,7 +4,7 @@ import "github.com/CarosDrean/api-amachay/models"
 
 var movement = models.TableDB{
 	Name:   "dbo.MOVEMENT",
-	Fields: []string{"Id", "IdProduct", "IdWareHouse", "DateTime", "Quantity", "Type", "IdUser", "IdClient"},
+	Fields: []string{"Id", "IdProduct", "IdWareHouse", "DateTime", "Quantity", "Type", "IdUser", "IdClient", "IdProvider"},
 }
 
 var Movement = models.QueryDB{

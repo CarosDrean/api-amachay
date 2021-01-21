@@ -85,7 +85,8 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type),
 		sql.Named("IdUser", item.IdUser),
-		sql.Named("IdClient", item.IdClient))
+		sql.Named("IdClient", item.IdClient),
+		sql.Named("IdProvider", item.IdProvider))
 	if err != nil {
 		return -1, err
 	}
@@ -108,7 +109,8 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type),
 		sql.Named("IdUser", item.IdUser),
-		sql.Named("IdClient", item.IdClient))
+		sql.Named("IdClient", item.IdClient),
+		sql.Named("IdProvider", item.IdProvider))
 	if err != nil {
 		return -1, err
 	}
@@ -159,7 +161,7 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 	}
 	for rows.Next() {
 		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &item.IdClient)
+			&item.IdUser, &item.IdClient, &item.IdProvider)
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err
