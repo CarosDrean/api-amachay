@@ -17,4 +17,6 @@ func Routes(r *mux.Router) {
 	clientRoutes(cl)
 	ms := r.PathPrefix("/measure").Subrouter()
 	measureRoutes(ms)
+	p := r.PathPrefix("/provider").Subrouter()
+	providerRoutes(p)
 }
