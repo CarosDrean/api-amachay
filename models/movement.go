@@ -7,6 +7,7 @@ type Movement struct {
 	IdWarehouse int     `json:"idWarehouse"`
 	IdUser      int     `json:"idUser"`
 	IdClient    int     `json:"idClient"`
+	IdProvider  int     `json:"idProvider"`
 	Date        string  `json:"date"`
 	Quantity    float32 `json:"quantity"`
 	Type        string  `json:"type"`
