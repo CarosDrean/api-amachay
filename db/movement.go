@@ -76,6 +76,14 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 	date, err := time.Parse(time.RFC3339, item.Date + "T05:00:00Z")
 	checkError(err, "Create", db.Ctx, "Convert Date")
 
+	idClient := sql.Named("IdClient", item.IdClient)
+	idProvider := sql.Named("IdProvider", item.IdProvider)
+	if item.Type == "input" {
+		idClient = sql.Named("IdClient", nil)
+	} else {
+		idProvider = sql.Named("IdProvider", nil)
+	}
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -85,8 +93,8 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type),
 		sql.Named("IdUser", item.IdUser),
-		sql.Named("IdClient", item.IdClient),
-		sql.Named("IdProvider", item.IdProvider))
+		idClient,
+		idProvider)
 	if err != nil {
 		return -1, err
 	}
@@ -160,8 +168,12 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 		return err
 	}
 	for rows.Next() {
+		var idClient sql.NullInt64
+		var idProvider sql.NullInt64
 		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &item.IdClient, &item.IdProvider)
+			&item.IdUser, &idClient, &idProvider)
+		item.IdClient = int(idClient.Int64)
+		item.IdProvider = int(idProvider.Int64)
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err
@@ -170,7 +182,11 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 				Ctx:   "Movement",
 				Query: query.Product,
 			}.Get(strconv.Itoa(item.IdProduct))
+			productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(product.ID))
+			measure, _ := MeasureDB{}.Get(strconv.Itoa(productMeasure.ID))
+			item.Measure = measure.Name
 			item.Product = product.Name
+
 			*res = append(*res, item)
 		}
 	}
