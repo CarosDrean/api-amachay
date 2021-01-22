@@ -98,6 +98,7 @@ CREATE TABLE PRODUCT_MEASURE
     IdProduct INT NOT NULL,
     IdMeasure INT NOT NULL,
     Unity     INT NOT NULL,
+    MinAlert  INT NULL,
     CONSTRAINT Pk_Product_Measure
         PRIMARY KEY (Id),
     CONSTRAINT Fk_Product_MeasureProduct

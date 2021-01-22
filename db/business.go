@@ -13,7 +13,7 @@ type BusinessDB struct {}
 func (db BusinessDB) GetAll() ([]models.Business, error) {
 	res := make([]models.Business, 0)
 
-	tsql := fmt.Sprintf(query.Measure["list"].Q)
+	tsql := fmt.Sprintf(query.Business["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, "measure", "GetAll")
@@ -26,7 +26,7 @@ func (db BusinessDB) GetAll() ([]models.Business, error) {
 
 func (db BusinessDB) Get(id string) (models.Business, error) {
 	res := make([]models.Business, 0)
-	tsql := fmt.Sprintf(query.Measure["get"].Q, id)
+	tsql := fmt.Sprintf(query.Business["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, "business", "Get")
@@ -86,7 +86,7 @@ func (db BusinessDB) Update(id string, item models.Business) (int64, error) {
 
 func (db BusinessDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(query.Measure["delete"].Q)
+	tsql := fmt.Sprintf(query.Business["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

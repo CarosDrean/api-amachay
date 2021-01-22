@@ -56,19 +56,25 @@ func (db ProductDB) Get(id string) (models.Product, error) {
 
 func (db ProductDB) Create(item models.Product) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(db.Query["insert"].Q)
-	result, err := DB.ExecContext(
+	tsql := db.Query["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
+	stmt, err := DB.Prepare(tsql)
+	if err != nil {
+		return -1, err
+	}
+	defer stmt.Close()
+	row := stmt.QueryRowContext(
 		ctx,
-		tsql,
 		sql.Named("Name", item.Name),
 		sql.Named("Description", item.Description),
 		sql.Named("Price", item.Price),
 		sql.Named("Stock", item.Stock),
 		sql.Named("IdCategory", item.IdCategory))
+	var newID int64
+	err = row.Scan(&newID)
 	if err != nil {
 		return -1, err
 	}
-	return result.RowsAffected()
+	return newID, nil
 }
 
 func (db ProductDB) Update(item models.Product) (int64, error) {

@@ -5,4 +5,5 @@ type ProductMeasure struct {
 	IdProduct int `json:"idProduct"`
 	IdMeasure int `json:"idMeasure"`
 	Unity     int `json:"unity"`
+	MinAlert  int `json:"minAlert"`
 }

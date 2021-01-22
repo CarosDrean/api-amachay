@@ -8,7 +8,7 @@ import (
 	"github.com/CarosDrean/api-amachay/query"
 )
 
-type ProductMeasureDB struct {}
+type ProductMeasureDB struct{}
 
 func (db ProductMeasureDB) GetAll() ([]models.ProductMeasure, error) {
 	res := make([]models.ProductMeasure, 0)
@@ -40,6 +40,21 @@ func (db ProductMeasureDB) Get(id string) (models.ProductMeasure, error) {
 	return res[0], nil
 }
 
+func (db ProductMeasureDB) GetProduct(id string) (models.ProductMeasure, error) {
+	res := make([]models.ProductMeasure, 0)
+	tsql := fmt.Sprintf(query.ProductMeasure["getProduct"].Q, id)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, "product measure", "Get")
+	if err != nil {
+		return models.ProductMeasure{}, err
+	}
+	if len(res) == 0 {
+		return models.ProductMeasure{}, nil
+	}
+	defer rows.Close()
+	return res[0], nil
+}
 
 func (db ProductMeasureDB) Create(item models.ProductMeasure) (int64, error) {
 	ctx := context.Background()
@@ -49,7 +64,8 @@ func (db ProductMeasureDB) Create(item models.ProductMeasure) (int64, error) {
 		tsql,
 		sql.Named("IdProduct", item.IdProduct),
 		sql.Named("IdMeasure", item.IdMeasure),
-		sql.Named("Unity", item.Unity))
+		sql.Named("Unity", item.Unity),
+		sql.Named("MinAlert", item.MinAlert))
 	if err != nil {
 		return -1, err
 	}
@@ -65,7 +81,8 @@ func (db ProductMeasureDB) Update(id string, item models.ProductMeasure) (int64,
 		sql.Named("ID", id),
 		sql.Named("IdProduct", item.IdProduct),
 		sql.Named("IdMeasure", item.IdMeasure),
-		sql.Named("Unity", item.Unity))
+		sql.Named("Unity", item.Unity),
+		sql.Named("MinAlert", item.MinAlert))
 	if err != nil {
 		return -1, err
 	}
@@ -85,6 +102,19 @@ func (db ProductMeasureDB) Delete(id string) (int64, error) {
 	return result.RowsAffected()
 }
 
+func (db ProductMeasureDB) DeleteProduct(id string) (int64, error) {
+	ctx := context.Background()
+	tsql := fmt.Sprintf(query.ProductMeasure["deleteProduct"].Q)
+	result, err := DB.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("ID", id))
+	if err != nil {
+		return -1, err
+	}
+	return result.RowsAffected()
+}
+
 func (db ProductMeasureDB) scan(rows *sql.Rows, err error, res *[]models.ProductMeasure, ctx string, situation string) error {
 	var item models.ProductMeasure
 	if err != nil {
@@ -92,7 +122,7 @@ func (db ProductMeasureDB) scan(rows *sql.Rows, err error, res *[]models.Product
 		return err
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdMeasure, &item.Unity)
+		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdMeasure, &item.Unity, &item.MinAlert)
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err

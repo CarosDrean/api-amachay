@@ -90,7 +90,6 @@ func (c UserController) Create(w http.ResponseWriter, r *http.Request) {
 		Mail:     userPerson.Mail,
 	}
 	idPerson, err := c.PersonDB.Create(person)
-	fmt.Println(idPerson)
 	if err != nil || idPerson == -1 {
 		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear Person, error: %v", err))
 		return
