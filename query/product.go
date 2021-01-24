@@ -4,7 +4,7 @@ import "github.com/CarosDrean/api-amachay/models"
 
 var product = models.TableDB{
 	Name:   "dbo.PRODUCT",
-	Fields: []string{"Id", "IdCategory", "Name", "Description", "Price", "Stock"},
+	Fields: []string{"Id", "IdCategory", "Name", "Description", "Price", "Stock", "Perishable"},
 }
 
 var Product = models.QueryDB{

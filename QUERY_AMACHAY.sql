@@ -76,6 +76,7 @@ CREATE TABLE PRODUCT
     Description VARCHAR(200)   NOT NULL,
     Price       NUMERIC(15, 4) NOT NULL,
     Stock       NUMERIC(15, 4) NOT NULL,
+    Perishable  BIT            NULL,
     CONSTRAINT Pk_Product
         PRIMARY KEY (Id),
     CONSTRAINT Fk_Product_Category
@@ -146,6 +147,10 @@ CREATE TABLE MOVEMENT
     IdClient    INT            NULL,
     IdProvider  INT            NULL,
     LogDateTime DATETIME       NULL,
+
+    Lot         VARCHAR(50)    NULL,
+    DueDate     DATETIME       NULL,
+    State       BIT            NULL,
     CONSTRAINT Pk_Movement
         PRIMARY KEY (Id),
     CONSTRAINT Fk_Movement_Product

@@ -38,6 +38,7 @@ func (c ProductController) GetAllStock(w http.ResponseWriter, r *http.Request) {
 			Unity:            productMeasure.Unity,
 			MinAlert:         productMeasure.MinAlert,
 			Measure:          measure.Name,
+			Perishable:       e.Perishable,
 		}
 		res = append(res, item)
 	}
@@ -65,6 +66,7 @@ func (c ProductController) GetAll(w http.ResponseWriter, r *http.Request) {
 			IdMeasure:        productMeasure.IdMeasure,
 			Unity:            productMeasure.Unity,
 			MinAlert:         productMeasure.MinAlert,
+			Perishable:       e.Perishable,
 		}
 		res = append(res, item)
 	}
@@ -98,6 +100,7 @@ func (c ProductController) Get(w http.ResponseWriter, r *http.Request) {
 		IdMeasure:        productMeasure.IdMeasure,
 		Unity:            productMeasure.Unity,
 		MinAlert:         productMeasure.MinAlert,
+		Perishable:       item.Perishable,
 	}
 
 	_ = json.NewEncoder(w).Encode(productFill)
@@ -114,6 +117,7 @@ func (c ProductController) Create(w http.ResponseWriter, r *http.Request) {
 		Price:       item.Price,
 		Stock:       0,
 		IdCategory:  item.IdCategory,
+		Perishable:  item.Perishable,
 	}
 	idProduct, err := c.DB.Create(product)
 	if err != nil || idProduct == -1 {
@@ -148,9 +152,10 @@ func (c ProductController) Update(w http.ResponseWriter, r *http.Request) {
 		Price:       item.Price,
 		Stock:       0,
 		IdCategory:  item.IdCategory,
+		Perishable:  item.Perishable,
 	}
 
-	item.ID, _ = strconv.Atoi(id)
+	product.ID, _ = strconv.Atoi(id)
 	result, err := c.DB.Update(product)
 	if err != nil {
 		returnErr(w, err, "actualizar")

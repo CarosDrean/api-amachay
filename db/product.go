@@ -68,7 +68,8 @@ func (db ProductDB) Create(item models.Product) (int64, error) {
 		sql.Named("Description", item.Description),
 		sql.Named("Price", item.Price),
 		sql.Named("Stock", item.Stock),
-		sql.Named("IdCategory", item.IdCategory))
+		sql.Named("IdCategory", item.IdCategory),
+		sql.Named("Perishable", item.Perishable))
 	var newID int64
 	err = row.Scan(&newID)
 	if err != nil {
@@ -88,7 +89,8 @@ func (db ProductDB) Update(item models.Product) (int64, error) {
 		sql.Named("Description", item.Description),
 		sql.Named("Price", item.Price),
 		sql.Named("Stock", item.Stock),
-		sql.Named("IdCategory", item.IdCategory))
+		sql.Named("IdCategory", item.IdCategory),
+		sql.Named("Perishable", item.Perishable))
 
 	if err != nil {
 		return -1, err
@@ -116,7 +118,9 @@ func (db ProductDB) scan(rows *sql.Rows, err error, res *[]models.Product, ctx s
 		return err
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock)
+		var perishable sql.NullBool
+		err := rows.Scan(&item.ID, &item.IdCategory, &item.Name, &item.Description, &item.Price, &item.Stock, &perishable)
+		item.Perishable = perishable.Bool
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err

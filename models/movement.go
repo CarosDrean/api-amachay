@@ -12,4 +12,8 @@ type Movement struct {
 	Date        string  `json:"date"`
 	Quantity    float32 `json:"quantity"`
 	Type        string  `json:"type"`
+
+	Lot        string `json:"lot"`
+	DueDate    string `json:"dueDate"`
+	State      bool   `json:"state"`
 }

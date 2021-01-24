@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-type MovementDB struct{
-	Ctx string
+type MovementDB struct {
+	Ctx   string
 	Query models.QueryDB
 }
 
@@ -21,6 +21,19 @@ func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movem
 	tsql := fmt.Sprintf(db.Query["listWarehouseFilter"].Q, filter.ID, filter.Type, filter.DateFrom, filter.DateTo)
 	rows, err := DB.Query(tsql)
 	err = db.scan(rows, err, &res, db.Ctx, "GetAllWarehouseFilter")
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+	return res, err
+}
+
+func (db MovementDB) GetAllLotsWarehouse(idProduct string, idWarehouse string)([]models.Movement, error) {
+	res := make([]models.Movement, 0)
+
+	tsql := fmt.Sprintf(db.Query["getAllLotsWarehouse"].Q, idProduct, idWarehouse)
+	rows, err := DB.Query(tsql)
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllLotsWarehouse")
 	if err != nil {
 		return res, err
 	}
@@ -73,7 +86,7 @@ func (db MovementDB) Get(id string) (models.Movement, error) {
 func (db MovementDB) Create(item models.Movement) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(db.Query["insert"].Q)
-	date, err := time.Parse(time.RFC3339, item.Date + "T05:00:00Z")
+	date, err := time.Parse(time.RFC3339, item.Date+"T05:00:00Z")
 	checkError(err, "Create", db.Ctx, "Convert Date")
 
 	idClient := sql.Named("IdClient", item.IdClient)
@@ -82,6 +95,21 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		idClient = sql.Named("IdClient", nil)
 	} else {
 		idProvider = sql.Named("IdProvider", nil)
+	}
+
+	lot := sql.Named("Lot", nil)
+	dueDate := sql.Named("DueDate", nil)
+	state := sql.Named("State", nil)
+	product, _ := ProductDB{
+		Ctx:   "Product DB",
+		Query: query.Product,
+	}.Get(strconv.Itoa(item.IdProduct))
+	if product.Perishable == false {
+		dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
+		checkError(err, "Create", db.Ctx, "Convert Date")
+		lot = sql.Named("Lot", item.Lot)
+		dueDate = sql.Named("DueDate", dateDue)
+		state = sql.Named("State", item.State)
 	}
 
 	result, err := DB.ExecContext(
@@ -94,7 +122,10 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		sql.Named("Type", item.Type),
 		sql.Named("IdUser", item.IdUser),
 		idClient,
-		idProvider)
+		idProvider,
+		lot,
+		dueDate,
+		state)
 	if err != nil {
 		return -1, err
 	}
@@ -104,8 +135,31 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(db.Query["update"].Q)
-	date, err := time.Parse(time.RFC3339, item.Date + "T05:00:00Z")
+	date, err := time.Parse(time.RFC3339, item.Date+"T05:00:00Z")
 	checkError(err, "Update", db.Ctx, "Convert Date")
+
+	idClient := sql.Named("IdClient", item.IdClient)
+	idProvider := sql.Named("IdProvider", item.IdProvider)
+	if item.Type == "input" {
+		idClient = sql.Named("IdClient", nil)
+	} else {
+		idProvider = sql.Named("IdProvider", nil)
+	}
+
+	lot := sql.Named("Lot", nil)
+	dueDate := sql.Named("DueDate", nil)
+	state := sql.Named("State", nil)
+	product, _ := ProductDB{
+		Ctx:   "Product DB",
+		Query: query.Product,
+	}.Get(strconv.Itoa(item.IdProduct))
+	if product.Perishable == false {
+		dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
+		checkError(err, "Create", db.Ctx, "Convert Date")
+		lot = sql.Named("Lot", item.Lot)
+		dueDate = sql.Named("DueDate", dateDue)
+		state = sql.Named("State", item.State)
+	}
 
 	result, err := DB.ExecContext(
 		ctx,
@@ -117,8 +171,11 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type),
 		sql.Named("IdUser", item.IdUser),
-		sql.Named("IdClient", item.IdClient),
-		sql.Named("IdProvider", item.IdProvider))
+		idClient,
+		idProvider,
+		lot,
+		dueDate,
+		state)
 	if err != nil {
 		return -1, err
 	}
@@ -148,7 +205,7 @@ func GetStock(idWarehouse string, idProduct int) float64 {
 		checkError(err, "GetStock", "Movement DB", "Reading rows")
 		return 0
 	}
-	for rows.Next(){
+	for rows.Next() {
 		var stock sql.NullFloat64
 		err := rows.Scan(&stock)
 		item = stock.Float64
@@ -170,10 +227,16 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 	for rows.Next() {
 		var idClient sql.NullInt64
 		var idProvider sql.NullInt64
+		var lot sql.NullString
+		var dueDate sql.NullString
+		var state sql.NullBool
 		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &idClient, &idProvider)
+			&item.IdUser, &idClient, &idProvider, &lot, &dueDate, &state)
 		item.IdClient = int(idClient.Int64)
 		item.IdProvider = int(idProvider.Int64)
+		item.Lot = lot.String
+		item.DueDate = dueDate.String
+		item.State = state.Bool
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err
