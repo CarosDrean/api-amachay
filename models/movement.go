@@ -16,4 +16,5 @@ type Movement struct {
 	Lot        string `json:"lot"`
 	DueDate    string `json:"dueDate"`
 	State      bool   `json:"state"`
+	Perishable bool   `json:"perishable"`
 }

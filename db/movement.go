@@ -100,11 +100,8 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 	lot := sql.Named("Lot", nil)
 	dueDate := sql.Named("DueDate", nil)
 	state := sql.Named("State", nil)
-	product, _ := ProductDB{
-		Ctx:   "Product DB",
-		Query: query.Product,
-	}.Get(strconv.Itoa(item.IdProduct))
-	if product.Perishable == false {
+	product, _ := ProductDB{Ctx:   "Product DB", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
+	if product.Perishable {
 		dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
 		checkError(err, "Create", db.Ctx, "Convert Date")
 		lot = sql.Named("Lot", item.Lot)
@@ -153,7 +150,7 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		Ctx:   "Product DB",
 		Query: query.Product,
 	}.Get(strconv.Itoa(item.IdProduct))
-	if product.Perishable == false {
+	if product.Perishable {
 		dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
 		checkError(err, "Create", db.Ctx, "Convert Date")
 		lot = sql.Named("Lot", item.Lot)
@@ -241,14 +238,12 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 			checkError(err, situation, ctx, "Scan rows")
 			return err
 		} else {
-			product, _ := ProductDB{
-				Ctx:   "Movement",
-				Query: query.Product,
-			}.Get(strconv.Itoa(item.IdProduct))
+			product, _ := ProductDB{Ctx:   "Movement", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
 			productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(product.ID))
-			measure, _ := MeasureDB{}.Get(strconv.Itoa(productMeasure.ID))
+			measure, _ := MeasureDB{}.Get(strconv.Itoa(productMeasure.IdMeasure))
 			item.Measure = measure.Name
 			item.Product = product.Name
+			item.Perishable = product.Perishable
 
 			*res = append(*res, item)
 		}
