@@ -1,8 +1,8 @@
 {
   "engine": "mssql",
-  "server": "DREAN",
-  "port": "1433",
-  "user": "sa",
+  "server": "DESKTOP-QD7QM2Q",
+  "port": "1434",
+  "user": "ti",
   "password": "123456",
   "database": "AMACHAY"
 }

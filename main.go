@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/constants"
 	"github.com/CarosDrean/api-amachay/db"
@@ -9,12 +10,22 @@ import (
 	routes "github.com/CarosDrean/api-amachay/router"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"github.com/gonutz/w32"
 	"log"
 	"net/http"
 	"os"
 )
 
-func main ()  {
+func main() {
+	f := flag.Bool("execTerminal", false, "to exec cmd")
+	flag.Parse()
+	if !*f {
+		hideConsole()
+	}
+	api()
+
+}
+func api(){
 	r := mux.NewRouter()
 
 	db.DB = helper.Get()
@@ -26,9 +37,11 @@ func main ()  {
 	routes.Routes(s)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{
+		AllowedOrigins: []string{
 			"http://localhost:4200",
-			"https://resultados.holosalud.org",
+			"http://192.241.159.224",
+			"https://inventario.holosalud.org",
+
 		},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
@@ -36,6 +49,7 @@ func main ()  {
 	})
 
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = constants.PORT //localhost
 	}
@@ -43,9 +57,23 @@ func main ()  {
 	handler := c.Handler(r)
 
 	fmt.Println("Server online!")
+
 	log.Fatal(http.ListenAndServe(":"+port, handler))
+
 }
 
+
+
 func indexRouter(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprintf(w, "Welcome api Amachay!")
+	_, _ = fmt.Fprintf(w, "Welcome api inventory holo!")
+}
+
+func hideConsole(){
+	console := w32.GetConsoleWindow()
+	if console != 0 {
+		_, consoleProcID := w32.GetWindowThreadProcessId(console)
+		if w32.GetCurrentProcessId() == consoleProcID {
+			w32.ShowWindowAsync(console, w32.SW_HIDE)
+		}
+	}
 }
