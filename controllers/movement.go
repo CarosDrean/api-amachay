@@ -35,7 +35,14 @@ func (c MovementController) GetAllLotsWarehouse(w http.ResponseWriter, r *http.R
 		returnErr(w, err, "obtener todos lots warehouse")
 		return
 	}
-	_ = json.NewEncoder(w).Encode(items)
+	res := make([]models.Movement, 0)
+	for i, e := range items {
+		items[i].Quantity = float32(c.DB.GetStockLot(e.IdWarehouse, e.IdProduct, e.Lot))
+		if items[i].Quantity > 0 {
+			res = append(res, items[i])
+		}
+	}
+	_ = json.NewEncoder(w).Encode(res)
 }
 
 func (c MovementController) GetAllWarehouse(w http.ResponseWriter, r *http.Request) {

@@ -3,15 +3,16 @@ package query
 import "github.com/CarosDrean/api-amachay/models"
 
 var movement = models.TableDB{
-	Name:   "dbo.MOVEMENT",
+	Name: "dbo.MOVEMENT",
 	Fields: []string{"Id", "IdProduct", "IdWareHouse", "DateTime", "Quantity", "Type", "IdUser", "IdClient", "IdProvider",
 		"Lot", "dueDate", "State"},
 }
 
 var Movement = models.QueryDB{
-	"get":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " + movement.Fields[0] + " =%s;"},
-	"list":  {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + ";"},
-	"stock": {Q: "select sum(Quantity) as stock from MOVEMENT where IdWareHouse = %s and IdProduct = %d;"},
+	"get":      {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " + movement.Fields[0] + " =%s;"},
+	"list":     {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + ";"},
+	"stock":    {Q: "select sum(Quantity) as stock from MOVEMENT where IdWareHouse = %s and IdProduct = %d;"},
+	"stockLot": {Q: "select sum(Quantity) as stock from MOVEMENT where IdWareHouse = %d and IdProduct = %d and Lot = '%s';"},
 	"listWarehouseId": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
 		movement.Fields[2] + " = %s;"},
 	"listWarehouseFilter": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +

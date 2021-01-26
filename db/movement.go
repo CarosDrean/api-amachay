@@ -28,6 +28,28 @@ func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movem
 	return res, err
 }
 
+func (db MovementDB) GetStockLot(idWarehouse int, idProduct int, lot string) float64 {
+	var item float64
+	tsql := fmt.Sprintf(query.Movement["stockLot"].Q, idWarehouse, idProduct, lot)
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		checkError(err, "GetStockLot", "Movement DB", "Reading rows")
+		return 0
+	}
+	for rows.Next() {
+		var stock sql.NullFloat64
+		err := rows.Scan(&stock)
+		item = stock.Float64
+		if err != nil {
+			checkError(err, "GetStockLot", "Movement DB", "Scan rows")
+			return 0
+		}
+	}
+	defer rows.Close()
+	return item
+}
+
 func (db MovementDB) GetAllLotsWarehouse(idProduct string, idWarehouse string)([]models.Movement, error) {
 	res := make([]models.Movement, 0)
 
@@ -102,10 +124,13 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 	state := sql.Named("State", nil)
 	product, _ := ProductDB{Ctx:   "Product DB", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
 	if product.Perishable {
-		dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-		checkError(err, "Create", db.Ctx, "Convert Date")
+		if item.Type == "input" {
+			dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
+			checkError(err, "Create", db.Ctx, "Convert Date2")
+			dueDate = sql.Named("DueDate", dateDue)
+		}
+
 		lot = sql.Named("Lot", item.Lot)
-		dueDate = sql.Named("DueDate", dateDue)
 		state = sql.Named("State", item.State)
 	}
 
@@ -151,10 +176,13 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		Query: query.Product,
 	}.Get(strconv.Itoa(item.IdProduct))
 	if product.Perishable {
-		dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-		checkError(err, "Create", db.Ctx, "Convert Date")
+		if item.Type == "input" {
+			dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
+			checkError(err, "Create", db.Ctx, "Convert Date2")
+			dueDate = sql.Named("DueDate", dateDue)
+		}
+
 		lot = sql.Named("Lot", item.Lot)
-		dueDate = sql.Named("DueDate", dateDue)
 		state = sql.Named("State", item.State)
 	}
 
