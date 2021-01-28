@@ -26,7 +26,7 @@ func (db ProviderDB) GetAll() ([]models.Provider, error) {
 
 func (db ProviderDB) Get(id string) (models.Provider, error) {
 	res := make([]models.Provider, 0)
-	tsql := fmt.Sprintf(query.Measure["get"].Q, id)
+	tsql := fmt.Sprintf(query.Provider["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, "provider", "Get")

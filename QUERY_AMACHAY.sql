@@ -137,12 +137,15 @@ GO
 
 CREATE TABLE INVOICE
 (
-    Id   INT          NOT NULL IDENTITY,
-    Name VARCHAR(250) NOT NULL,
-    Code VARCHAR(50)  NOT NULL,
-    Date DATETIME     NOT NULL,
-    CONSTRAINT Pk_Provider
+    Id         INT          NOT NULL IDENTITY,
+    IdProvider INT          NULL,
+    Name       VARCHAR(250) NOT NULL,
+    Code       VARCHAR(50)  NOT NULL,
+    Date       DATETIME     NOT NULL,
+    CONSTRAINT Pk_Invoice
         PRIMARY KEY (Id),
+    CONSTRAINT Fk_InvoiceProvider
+        FOREIGN KEY (IdProvider) REFERENCES BUSINESS (Id),
 )
 GO
 

@@ -4,7 +4,7 @@ import "github.com/CarosDrean/api-amachay/models"
 
 var invoice = models.TableDB{
 	Name:   "dbo.INVOICE",
-	Fields: []string{"Id", "Name", "Code", "Date", "IdImage"},
+	Fields: []string{"Id", "Name", "Code", "Date", "IdImage", "IdProvider"},
 }
 
 var Invoice = models.QueryDB{

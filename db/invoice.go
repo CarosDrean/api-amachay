@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/CarosDrean/api-amachay/query"
+	"strconv"
 	"time"
 )
 
@@ -53,7 +54,8 @@ func (db InvoiceDB) Create(item models.Invoice) (int64, error) {
 		sql.Named("Name", item.Name),
 		sql.Named("Code", item.Code),
 		sql.Named("Date", date),
-		sql.Named("IdImage", item.IdImage))
+		sql.Named("IdImage", item.IdImage),
+		sql.Named("IdProvider", item.IdProvider))
 	if err != nil {
 		return -1, err
 	}
@@ -72,7 +74,8 @@ func (db InvoiceDB) Update(id string, item models.Invoice) (int64, error) {
 		sql.Named("Name", item.Name),
 		sql.Named("Code", item.Code),
 		sql.Named("Date", date),
-		sql.Named("IdImage", item.IdImage))
+		sql.Named("IdImage", item.IdImage),
+		sql.Named("IdProvider", item.IdProvider))
 	if err != nil {
 		return -1, err
 	}
@@ -99,11 +102,16 @@ func (db InvoiceDB) scan(rows *sql.Rows, err error, res *[]models.Invoice, ctx s
 		return err
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.Name, &item.Code, &item.Date, &item.IdImage)
+		var idProvider sql.NullInt64
+		err := rows.Scan(&item.ID, &item.Name, &item.Code, &item.Date, &item.IdImage, &idProvider)
+		item.IdProvider = int(idProvider.Int64)
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err
 		} else {
+			provider, _ := ProviderDB{}.Get(strconv.Itoa(item.IdProvider))
+			business, _ := BusinessDB{}.Get(strconv.Itoa(int(provider.IdBusiness)))
+			item.Provider = business.Name
 			*res = append(*res, item)
 		}
 	}
