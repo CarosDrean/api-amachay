@@ -15,6 +15,19 @@ type MovementDB struct {
 	Query models.QueryDB
 }
 
+func (db MovementDB) GetInvoices(idProduct string, idWarehouse string) ([]models.Movement, error) {
+	res := make([]models.Movement, 0)
+
+	tsql := fmt.Sprintf(db.Query["getInvoices"].Q, idProduct, idWarehouse)
+	rows, err := DB.Query(tsql)
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllInvoices")
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+	return res, err
+}
+
 func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movement, error) {
 	res := make([]models.Movement, 0)
 
@@ -147,7 +160,8 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		idProvider,
 		lot,
 		dueDate,
-		state)
+		state,
+		sql.Named("IdInvoice", item.IdInvoice))
 	if err != nil {
 		return -1, err
 	}
@@ -200,7 +214,8 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		idProvider,
 		lot,
 		dueDate,
-		state)
+		state,
+		sql.Named("IdInvoice", item.IdInvoice))
 	if err != nil {
 		return -1, err
 	}
@@ -255,13 +270,15 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 		var lot sql.NullString
 		var dueDate sql.NullString
 		var state sql.NullBool
+		var idInvoice sql.NullString
 		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &idClient, &idProvider, &lot, &dueDate, &state)
+			&item.IdUser, &idClient, &idProvider, &lot, &dueDate, &state, &idInvoice)
 		item.IdClient = int(idClient.Int64)
 		item.IdProvider = int(idProvider.Int64)
 		item.Lot = lot.String
 		item.DueDate = dueDate.String
 		item.State = state.Bool
+		item.IdInvoice = idInvoice.String
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err

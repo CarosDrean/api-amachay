@@ -11,7 +11,7 @@ CREATE TABLE PERSON
     LastName VARCHAR(100) NOT NULL,
     Cel      VARCHAR(20),
     Phone    VARCHAR(20),
-    Address  VARCHAR(100),
+    Address  VARCHAR(200),
     Dni      VARCHAR(11),
     Mail     VARCHAR(100),
     CONSTRAINT Pk_Person
@@ -112,9 +112,9 @@ GO
 CREATE TABLE BUSINESS
 (
     Id      INT          NOT NULL IDENTITY,
-    Name    VARCHAR(100) NOT NULL,
-    RUC     VARCHAR(100) NOT NULL,
-    Address VARCHAR(50)  NOT NULL,
+    Name    VARCHAR(150) NOT NULL,
+    RUC     VARCHAR(50)  NOT NULL,
+    Address VARCHAR(200) NOT NULL,
     Cel     VARCHAR(20)  NULL,
     Phone   VARCHAR(20)  NULL,
     Mail    VARCHAR(50)  NOT NULL,
@@ -135,6 +135,17 @@ CREATE TABLE PROVIDER
 )
 GO
 
+CREATE TABLE INVOICE
+(
+    Id   INT          NOT NULL IDENTITY,
+    Name VARCHAR(250) NOT NULL,
+    Code VARCHAR(50)  NOT NULL,
+    Date DATETIME     NOT NULL,
+    CONSTRAINT Pk_Provider
+        PRIMARY KEY (Id),
+)
+GO
+
 CREATE TABLE MOVEMENT
 (
     Id          INT            NOT NULL IDENTITY,
@@ -151,6 +162,7 @@ CREATE TABLE MOVEMENT
     Lot         VARCHAR(50)    NULL,
     DueDate     DATETIME       NULL,
     State       BIT            NULL,
+    IdInvoice   INT            NULL,
     CONSTRAINT Pk_Movement
         PRIMARY KEY (Id),
     CONSTRAINT Fk_Movement_Product
@@ -162,6 +174,8 @@ CREATE TABLE MOVEMENT
     CONSTRAINT Fk_Movement_Client
         FOREIGN KEY (IdClient) REFERENCES CLIENT (Id),
     CONSTRAINT Fk_Movement_Provider
-        FOREIGN KEY (IdProvider) REFERENCES PROVIDER (Id)
+        FOREIGN KEY (IdProvider) REFERENCES PROVIDER (Id),
+    CONSTRAINT Fk_Movement_Invoice
+        FOREIGN KEY (IdInvoice) REFERENCES INVOICE (Id)
 )
 GO

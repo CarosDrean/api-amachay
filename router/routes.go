@@ -19,4 +19,6 @@ func Routes(r *mux.Router) {
 	measureRoutes(ms)
 	p := r.PathPrefix("/provider").Subrouter()
 	providerRoutes(p)
+	i := r.PathPrefix("/invoice").Subrouter()
+	invoiceRoutes(i)
 }

@@ -5,7 +5,7 @@ import "github.com/CarosDrean/api-amachay/models"
 var movement = models.TableDB{
 	Name: "dbo.MOVEMENT",
 	Fields: []string{"Id", "IdProduct", "IdWareHouse", "DateTime", "Quantity", "Type", "IdUser", "IdClient", "IdProvider",
-		"Lot", "dueDate", "State"},
+		"Lot", "dueDate", "State", "IdInvoice"},
 }
 
 var Movement = models.QueryDB{
@@ -25,4 +25,6 @@ var Movement = models.QueryDB{
 
 	"getAllLotsWarehouse": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name +
 		" where " + movement.Fields[1] + " =%s and " + movement.Fields[2] + " =%s and " + movement.Fields[11] + " = 1"}, // 1 es true
+	"getInvoices": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name +
+		" where " + movement.Fields[1] + " =%s and " + movement.Fields[2] + " =%s"},
 }

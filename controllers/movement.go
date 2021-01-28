@@ -12,6 +12,18 @@ type MovementController struct {
 	DB db.MovementDB
 }
 
+func (c MovementController) GetInvoices(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var item models.Filter
+	_ = json.NewDecoder(r.Body).Decode(&item)
+	items, err := c.DB.GetInvoices(item.ID, item.AuxID)
+	if err != nil {
+		returnErr(w, err, "obtener todos warehouse filter")
+		return
+	}
+	_ = json.NewEncoder(w).Encode(items)
+}
+
 func (c MovementController) GetAllWarehouseFilter(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var item models.Filter

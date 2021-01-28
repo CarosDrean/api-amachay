@@ -13,6 +13,7 @@ type Movement struct {
 	Quantity    float32 `json:"quantity"`
 	Type        string  `json:"type"`
 
+	IdInvoice  string `json:"idInvoice"`
 	Lot        string `json:"lot"`
 	DueDate    string `json:"dueDate"`
 	State      bool   `json:"state"`

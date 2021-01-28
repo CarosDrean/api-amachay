@@ -39,7 +39,6 @@ func api(){
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{
 			"http://localhost:4200",
-			"http://192.241.159.224",
 			"https://inventario.holosalud.org",
 
 		},
@@ -56,7 +55,7 @@ func api(){
 
 	handler := c.Handler(r)
 
-	fmt.Println("Server online!")
+	fmt.Println(fmt.Sprintf("Server online in %s!", constants.PORT))
 
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 
