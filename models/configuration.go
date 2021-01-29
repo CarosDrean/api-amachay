@@ -7,4 +7,5 @@ type Configuration struct {
 	User     string
 	Password string
 	Database string
+	ChatId   string
 }

@@ -142,6 +142,7 @@ CREATE TABLE INVOICE
     Name       VARCHAR(250) NOT NULL,
     Code       VARCHAR(50)  NOT NULL,
     Date       DATETIME     NOT NULL,
+    IdImage    VARCHAR(250) NULL,
     CONSTRAINT Pk_Invoice
         PRIMARY KEY (Id),
     CONSTRAINT Fk_InvoiceProvider

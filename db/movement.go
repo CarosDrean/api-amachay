@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/CarosDrean/api-amachay/query"
+	"github.com/CarosDrean/api-amachay/telegram"
 	"strconv"
 	"time"
 )
@@ -165,7 +166,26 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
+	// obtener el stock y notificar a telegram
+	GetDataForAlert(item)
 	return result.RowsAffected()
+}
+
+func GetDataForAlert(item models.Movement) {
+	stock := GetStock(strconv.Itoa(item.IdWarehouse), item.IdProduct)
+	productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(item.IdProduct))
+	if stock <= float64(productMeasure.MinAlert) {
+		product, _ := ProductDB{
+			Ctx:   "For Alert",
+			Query: query.Product,
+		}.Get(strconv.Itoa(item.IdProduct))
+		warehouse, _ := WarehouseDB{
+			Ctx:   "For Alert",
+			Query: query.Warehouse,
+		}.Get(strconv.Itoa(item.IdWarehouse))
+		measure, _ := MeasureDB{}.Get(strconv.Itoa(productMeasure.IdMeasure))
+		telegram.AlertStock(warehouse.Name, product.Name, measure.Name, int(stock))
+	}
 }
 
 func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
@@ -219,6 +239,7 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
+	GetDataForAlert(item)
 	return result.RowsAffected()
 }
 
