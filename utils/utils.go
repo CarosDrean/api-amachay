@@ -25,3 +25,23 @@ func GetConfiguration() (models.Configuration, error) {
 
 	return config, nil
 }
+
+func GetConfigurationTelegram() (models.ConfigurationTelegram, error) {
+	config := models.ConfigurationTelegram{}
+	file, err := os.Open("./configuration-telegram.json")
+
+	if err != nil {
+		return config, err
+	}
+
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
+
+	if err != nil {
+		return config, err
+	}
+
+	return config, nil
+}
