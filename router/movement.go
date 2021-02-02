@@ -18,6 +18,7 @@ func movementRoutes(s *mux.Router) {
 	s.HandleFunc("/all/{idWarehouse}", mid.CheckSecurity(ctrl.GetAllWarehouse)).Methods("GET")
 	s.HandleFunc("/filter/", mid.CheckSecurity(ctrl.GetAllWarehouseFilter)).Methods("POST")
 	s.HandleFunc("/all-lots-warehouse/", mid.CheckSecurity(ctrl.GetAllLotsWarehouse)).Methods("POST")
+	s.HandleFunc("/all-brands-warehouse/", mid.CheckSecurity(ctrl.GetAllBrandsWarehouse)).Methods("POST")
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.Create)).Methods("POST")

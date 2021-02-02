@@ -26,4 +26,7 @@ var Movement = models.QueryDB{
 
 	"getAllLotsWarehouse": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name +
 		" where " + movement.Fields[1] + " =%s and " + movement.Fields[2] + " =%s"},
+	"getAllBrandsWarehouse": {Q: "select " + movement.Fields[1] + ", " + movement.Fields[10] + " from " + movement.Name +
+		" where " + movement.Fields[1] + " =%s and " + movement.Fields[2] + " =%s " +
+		" group by " + movement.Fields[1] + ", " + movement.Fields[10]},
 }

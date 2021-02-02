@@ -86,6 +86,45 @@ func (db MovementDB) GetAllLotsWarehouse(idProduct string, idWarehouse string)([
 	return res, err
 }
 
+func (db MovementDB) GetAllBrandsWarehouse(idProduct string, idWarehouse string)([]models.Movement, error) {
+	res := make([]models.Movement, 0)
+
+	tsql := fmt.Sprintf(db.Query["getAllBrandsWarehouse"].Q, idProduct, idWarehouse)
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		checkError(err, "GetAllBrandsWarehouse", "Movement DB", "Reading rows")
+		return res, err
+	}
+	idWarehouseInt, _ := strconv.Atoi(idWarehouse)
+	for rows.Next() {
+		var idProduct sql.NullInt64
+		var idBrand sql.NullInt64
+		err := rows.Scan(&idProduct, &idBrand)
+		if err != nil {
+			checkError(err, "GetAllBrandsWarehouse", "Movement DB", "Scan rows")
+		}
+		product, _ := ProductDB{
+			Ctx:   "Product DB",
+			Query: query.Product,
+		}.Get(strconv.Itoa(int(idProduct.Int64)))
+		productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(product.ID))
+		measure, _ := MeasureDB{}.Get(strconv.Itoa(productMeasure.IdMeasure))
+		brand, _ := BrandDB{}.Get(strconv.Itoa(int(idBrand.Int64)))
+		movement := models.Movement{
+			IdProduct:   product.ID,
+			IdWarehouse: idWarehouseInt,
+			Product:     product.Name,
+			Measure:     measure.Name,
+			IdBrand:     brand.ID,
+			Brand:       brand.Name,
+		}
+		res = append(res, movement)
+	}
+	defer rows.Close()
+	return res, err
+}
+
 func (db MovementDB) GetAllWarehouse(idWarehouse string) ([]models.Movement, error) {
 	res := make([]models.Movement, 0)
 

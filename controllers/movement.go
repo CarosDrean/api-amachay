@@ -46,6 +46,26 @@ func (c MovementController) GetAllLotsWarehouse(w http.ResponseWriter, r *http.R
 	_ = json.NewEncoder(w).Encode(res)
 }
 
+func (c MovementController) GetAllBrandsWarehouse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var item models.Filter
+	_ = json.NewDecoder(r.Body).Decode(&item)
+
+	items, err := c.DB.GetAllBrandsWarehouse(item.ID, item.AuxID)
+	if err != nil {
+		returnErr(w, err, "Get All Brands warehouse")
+		return
+	}
+	res := make([]models.Movement, 0)
+	for i, e := range items {
+		items[i].Quantity = float32(c.DB.GetStockBrand(e.IdWarehouse, e.IdProduct, e.IdBrand))
+		if items[i].Quantity > 0 {
+			res = append(res, items[i])
+		}
+	}
+	_ = json.NewEncoder(w).Encode(res)
+}
+
 func (c MovementController) GetAllWarehouse(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
