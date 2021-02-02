@@ -14,6 +14,7 @@ type Movement struct {
 	Type        string  `json:"type"`
 
 	IdLot      int    `json:"idLot"`
+	IdBrand    int    `json:"idBrand"`
 	Lot        string `json:"lot"`
 	Brand      string `json:"brand"`
 	DueDate    string `json:"dueDate"`

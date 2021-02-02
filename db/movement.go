@@ -29,13 +29,35 @@ func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movem
 	return res, err
 }
 
-func (db MovementDB) GetStockLot(idWarehouse int, idProduct int, lot string) float64 {
+func (db MovementDB) GetStockLot(idWarehouse int, idProduct int, idLot int) float64 {
 	var item float64
-	tsql := fmt.Sprintf(query.Movement["stockLot"].Q, idWarehouse, idProduct, lot)
+	tsql := fmt.Sprintf(query.Movement["stockLot"].Q, idWarehouse, idProduct, idLot)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
 		checkError(err, "GetStockLot", "Movement DB", "Reading rows")
+		return 0
+	}
+	for rows.Next() {
+		var stock sql.NullFloat64
+		err := rows.Scan(&stock)
+		item = stock.Float64
+		if err != nil {
+			checkError(err, "GetStockLot", "Movement DB", "Scan rows")
+			return 0
+		}
+	}
+	defer rows.Close()
+	return item
+}
+
+func (db MovementDB) GetStockBrand(idWarehouse int, idProduct int, idBrand int) float64 {
+	var item float64
+	tsql := fmt.Sprintf(query.Movement["stockBrand"].Q, idWarehouse, idProduct, idBrand)
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		checkError(err, "GetStockBrand", "Movement DB", "Reading rows")
 		return 0
 	}
 	for rows.Next() {
@@ -137,7 +159,8 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		sql.Named("IdUser", item.IdUser),
 		idClient,
 		idProvider,
-		lot)
+		lot,
+		sql.Named("IdBrand", item.IdBrand))
 	if err != nil {
 		return -1, err
 	}
@@ -177,15 +200,6 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		idProvider = sql.Named("IdProvider", nil)
 	}
 
-	lot := sql.Named("IdLot", nil)
-	product, _ := ProductDB{
-		Ctx:   "Product DB",
-		Query: query.Product,
-	}.Get(strconv.Itoa(item.IdProduct))
-	if product.Perishable {
-		lot = sql.Named("IdLot", item.IdLot)
-	}
-
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -198,7 +212,8 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		sql.Named("IdUser", item.IdUser),
 		idClient,
 		idProvider,
-		lot)
+		sql.Named("IdLot", item.IdLot),
+		sql.Named("IdBrand", item.IdBrand))
 	if err != nil {
 		return -1, err
 	}
@@ -252,11 +267,13 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 		var idClient sql.NullInt64
 		var idProvider sql.NullInt64
 		var idLot sql.NullInt64
+		var idBrand sql.NullInt64
 		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &idClient, &idProvider, &idLot)
+			&item.IdUser, &idClient, &idProvider, &idLot, &idBrand)
 		item.IdClient = int(idClient.Int64)
 		item.IdProvider = int(idProvider.Int64)
 		item.IdLot = int(idLot.Int64)
+		item.IdBrand = int(idBrand.Int64)
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err
@@ -265,9 +282,10 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 			productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(product.ID))
 			measure, _ := MeasureDB{}.Get(strconv.Itoa(productMeasure.IdMeasure))
 			lot, _ := LotDB{}.Get(strconv.Itoa(item.IdLot))
+			brand, _ := BrandDB{}.Get(strconv.Itoa(item.IdBrand))
 			item.Lot = lot.Lot
 			item.DueDate = lot.DueDate
-			item.Brand = lot.Brand
+			item.Brand = brand.Name
 			item.Measure = measure.Name
 			item.Product = product.Name
 			item.Perishable = product.Perishable

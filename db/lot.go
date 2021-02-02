@@ -50,13 +50,17 @@ func (db LotDB) Create(item models.Lot) (int64, error) {
 		return -1, err
 	}
 	defer stmt.Close()
-	date, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-	checkError(err, "Create", "lot db", "Convert Date")
+	dueDate := sql.Named("DueDate", nil)
+	if item.DueDate != "" {
+		date, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
+		checkError(err, "Create", "lot db", "Convert Date")
+		dueDate = sql.Named("DueDate", date)
+	}
+
 	row := stmt.QueryRowContext(
 		ctx,
 		sql.Named("Lot", item.Lot),
-		sql.Named("Brand", item.Brand),
-		sql.Named("DueDate", date))
+		dueDate)
 	var newID int64
 	err = row.Scan(&newID)
 	if err != nil {
@@ -68,15 +72,18 @@ func (db LotDB) Create(item models.Lot) (int64, error) {
 func (db LotDB) Update(id string, item models.Lot) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(query.Lot["update"].Q)
-	date, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-	checkError(err, "Create", "lot db", "Convert Date")
+	dueDate := sql.Named("DueDate", nil)
+	if item.DueDate != "" {
+		date, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
+		checkError(err, "Create", "lot db", "Convert Date")
+		dueDate = sql.Named("DueDate", date)
+	}
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", id),
 		sql.Named("Lot", item.Lot),
-		sql.Named("Brand", item.Brand),
-		sql.Named("DueDate", date))
+		dueDate)
 	if err != nil {
 		return -1, err
 	}
@@ -103,7 +110,7 @@ func (db LotDB) scan(rows *sql.Rows, err error, res *[]models.Lot, ctx string, s
 		return err
 	}
 	for rows.Next() {
-		err := rows.Scan(&item.ID, &item.Lot, &item.Brand, &item.DueDate)
+		err := rows.Scan(&item.ID, &item.Lot, &item.DueDate)
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err

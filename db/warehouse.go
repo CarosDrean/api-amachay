@@ -43,7 +43,6 @@ func (db WarehouseDB) Get(id string) (models.Warehouse, error) {
 func (db WarehouseDB) Create(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(db.Query["insert"].Q)
-	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

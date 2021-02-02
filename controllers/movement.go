@@ -38,7 +38,7 @@ func (c MovementController) GetAllLotsWarehouse(w http.ResponseWriter, r *http.R
 	}
 	res := make([]models.Movement, 0)
 	for i, e := range items {
-		items[i].Quantity = float32(c.DB.GetStockLot(e.IdWarehouse, e.IdProduct, e.Lot))
+		items[i].Quantity = float32(c.DB.GetStockLot(e.IdWarehouse, e.IdProduct, e.IdLot))
 		if items[i].Quantity > 0 {
 			res = append(res, items[i])
 		}
@@ -90,7 +90,6 @@ func (c MovementController) Create(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	lot := models.Lot{
 		Lot:     item.Lot,
-		Brand:   item.Brand,
 		DueDate: item.DueDate,
 	}
 	idLot, err := db.LotDB{}.Create(lot)
@@ -118,7 +117,6 @@ func (c MovementController) Update(w http.ResponseWriter, r *http.Request) {
 	lot := models.Lot{
 		ID:      item.IdLot,
 		Lot:     item.Lot,
-		Brand:   item.Brand,
 		DueDate: item.DueDate,
 	}
 	result, err := db.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)

@@ -162,6 +162,15 @@ CREATE TABLE LOT
 )
     GO
 
+CREATE TABLE BRAND
+(
+    Id   INT          NOT NULL IDENTITY,
+    Name VARCHAR(100) NOT NULL,
+    CONSTRAINT Pk_Brand
+        PRIMARY KEY (Id),
+)
+    GO
+
 CREATE TABLE MOVEMENT
 (
     Id          INT            NOT NULL IDENTITY,
@@ -176,6 +185,7 @@ CREATE TABLE MOVEMENT
     LogDateTime DATETIME NULL,
 
     IdLot       INT NULL,
+    IdBrand     INT NULL,
     CONSTRAINT Pk_Movement
         PRIMARY KEY (Id),
     CONSTRAINT Fk_Movement_Product
@@ -189,7 +199,9 @@ CREATE TABLE MOVEMENT
     CONSTRAINT Fk_Movement_Provider
         FOREIGN KEY (IdProvider) REFERENCES PROVIDER (Id),
     CONSTRAINT Fk_Movement_Lot
-        FOREIGN KEY (IdLot) REFERENCES LOT (Id)
+        FOREIGN KEY (IdLot) REFERENCES LOT (Id),
+    CONSTRAINT Fk_Movement_Brand
+        FOREIGN KEY (IdBrand) REFERENCES BRAND (Id)
 )
     GO
 
