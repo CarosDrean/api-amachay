@@ -40,7 +40,6 @@ func api(){
 		AllowedOrigins: []string{
 			"http://localhost:4200",
 			"https://inventario.holosalud.org",
-
 		},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},

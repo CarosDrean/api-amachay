@@ -1,4 +1,5 @@
-CREATE DATABASE AMACHAY
+CREATE
+DATABASE AMACHAY
 GO
 
 USE AMACHAY
@@ -17,7 +18,7 @@ CREATE TABLE PERSON
     CONSTRAINT Pk_Person
         PRIMARY KEY (Id)
 )
-GO
+    GO
 
 CREATE TABLE CLIENT
 (
@@ -29,7 +30,7 @@ CREATE TABLE CLIENT
     CONSTRAINT Fk_Client_Person
         FOREIGN KEY (IdPerson) REFERENCES PERSON (Id)
 )
-GO
+    GO
 
 CREATE TABLE WAREHOUSE
 (
@@ -40,13 +41,13 @@ CREATE TABLE WAREHOUSE
     CONSTRAINT Pk_WareHouse
         PRIMARY KEY (Id)
 )
-GO
+    GO
 
 CREATE TABLE USERS
 (
     Id          INT         NOT NULL IDENTITY,
     IdPerson    INT         NOT NULL,
-    IdWarehouse INT         NULL,
+    IdWarehouse INT NULL,
     UserName    VARCHAR(20) NOT NULL,
     Password    TEXT        NOT NULL,
     Rol         VARCHAR(100),
@@ -56,7 +57,7 @@ CREATE TABLE USERS
         FOREIGN KEY (IdPerson) REFERENCES PERSON (Id),
     FOREIGN KEY (IdWarehouse) REFERENCES WAREHOUSE (Id)
 )
-GO
+    GO
 
 CREATE TABLE CATEGORY
 (
@@ -65,7 +66,7 @@ CREATE TABLE CATEGORY
     CONSTRAINT Pk_Category
         PRIMARY KEY (Id)
 )
-GO
+    GO
 
 
 CREATE TABLE PRODUCT
@@ -76,13 +77,13 @@ CREATE TABLE PRODUCT
     Description VARCHAR(200)   NOT NULL,
     Price       NUMERIC(15, 4) NOT NULL,
     Stock       NUMERIC(15, 4) NOT NULL,
-    Perishable  BIT            NULL,
+    Perishable  BIT NULL,
     CONSTRAINT Pk_Product
         PRIMARY KEY (Id),
     CONSTRAINT Fk_Product_Category
         FOREIGN KEY (IdCategory) REFERENCES CATEGORY (Id),
 )
-GO
+    GO
 
 CREATE TABLE MEASURE
 (
@@ -91,7 +92,7 @@ CREATE TABLE MEASURE
     CONSTRAINT Pk_Measure
         PRIMARY KEY (Id),
 )
-GO
+    GO
 
 CREATE TABLE PRODUCT_MEASURE
 (
@@ -107,7 +108,7 @@ CREATE TABLE PRODUCT_MEASURE
     CONSTRAINT Fk_Product_MeasureMeasure
         FOREIGN KEY (IdMeasure) REFERENCES MEASURE (Id),
 )
-GO
+    GO
 
 CREATE TABLE BUSINESS
 (
@@ -115,13 +116,13 @@ CREATE TABLE BUSINESS
     Name    VARCHAR(150) NOT NULL,
     RUC     VARCHAR(50)  NOT NULL,
     Address VARCHAR(200) NOT NULL,
-    Cel     VARCHAR(20)  NULL,
-    Phone   VARCHAR(20)  NULL,
+    Cel     VARCHAR(20) NULL,
+    Phone   VARCHAR(20) NULL,
     Mail    VARCHAR(50)  NOT NULL,
     CONSTRAINT Pk_Business
         PRIMARY KEY (Id),
 )
-GO
+    GO
 
 CREATE TABLE PROVIDER
 (
@@ -133,12 +134,12 @@ CREATE TABLE PROVIDER
     CONSTRAINT Fk_ProviderBusiness
         FOREIGN KEY (IdBusiness) REFERENCES BUSINESS (Id),
 )
-GO
+    GO
 
 CREATE TABLE INVOICE
 (
     Id         INT          NOT NULL IDENTITY,
-    IdProvider INT          NULL,
+    IdProvider INT NULL,
     Name       VARCHAR(250) NOT NULL,
     Code       VARCHAR(50)  NOT NULL,
     Date       DATETIME     NOT NULL,
@@ -146,9 +147,20 @@ CREATE TABLE INVOICE
     CONSTRAINT Pk_Invoice
         PRIMARY KEY (Id),
     CONSTRAINT Fk_InvoiceProvider
-        FOREIGN KEY (IdProvider) REFERENCES BUSINESS (Id),
+        FOREIGN KEY (IdProvider) REFERENCES PROVIDER (Id),
 )
-GO
+    GO
+
+CREATE TABLE LOT
+(
+    Id      INT NOT NULL IDENTITY,
+    Lot     VARCHAR(50) NULL,
+    Brand   VARCHAR(200) NULL,
+    DueDate DATETIME NULL,
+    CONSTRAINT Pk_Lot
+        PRIMARY KEY (Id),
+)
+    GO
 
 CREATE TABLE MOVEMENT
 (
@@ -159,14 +171,11 @@ CREATE TABLE MOVEMENT
     Quantity    NUMERIC(15, 2) NOT NULL,
     Type        VARCHAR(100),
     IdUser      INT            NOT NULL,
-    IdClient    INT            NULL,
-    IdProvider  INT            NULL,
-    LogDateTime DATETIME       NULL,
+    IdClient    INT NULL,
+    IdProvider  INT NULL,
+    LogDateTime DATETIME NULL,
 
-    Lot         VARCHAR(50)    NULL,
-    DueDate     DATETIME       NULL,
-    State       BIT            NULL,
-    IdInvoice   INT            NULL,
+    IdLot       INT NULL,
     CONSTRAINT Pk_Movement
         PRIMARY KEY (Id),
     CONSTRAINT Fk_Movement_Product
@@ -179,7 +188,8 @@ CREATE TABLE MOVEMENT
         FOREIGN KEY (IdClient) REFERENCES CLIENT (Id),
     CONSTRAINT Fk_Movement_Provider
         FOREIGN KEY (IdProvider) REFERENCES PROVIDER (Id),
-    CONSTRAINT Fk_Movement_Invoice
-        FOREIGN KEY (IdInvoice) REFERENCES INVOICE (Id)
+    CONSTRAINT Fk_Movement_Lot
+        FOREIGN KEY (IdLot) REFERENCES LOT (Id)
 )
-GO
+    GO
+

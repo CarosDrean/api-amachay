@@ -6,22 +6,11 @@ import (
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 type MovementController struct {
 	DB db.MovementDB
-}
-
-func (c MovementController) GetInvoices(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var item models.Filter
-	_ = json.NewDecoder(r.Body).Decode(&item)
-	items, err := c.DB.GetInvoices(item.ID, item.AuxID)
-	if err != nil {
-		returnErr(w, err, "obtener todos warehouse filter")
-		return
-	}
-	_ = json.NewEncoder(w).Encode(items)
 }
 
 func (c MovementController) GetAllWarehouseFilter(w http.ResponseWriter, r *http.Request) {
@@ -99,9 +88,20 @@ func (c MovementController) Create(w http.ResponseWriter, r *http.Request) {
 
 	var item models.Movement
 	_ = json.NewDecoder(r.Body).Decode(&item)
+	lot := models.Lot{
+		Lot:     item.Lot,
+		Brand:   item.Brand,
+		DueDate: item.DueDate,
+	}
+	idLot, err := db.LotDB{}.Create(lot)
+	if err != nil || idLot == -1 {
+		returnErr(w, err, "Create Lot")
+		return
+	}
+	item.IdLot = int(idLot)
 	result, err := c.DB.Create(item)
 	if err != nil {
-		returnErr(w, err, "crear")
+		returnErr(w, err, "Create")
 		return
 	}
 
@@ -114,7 +114,16 @@ func (c MovementController) Update(w http.ResponseWriter, r *http.Request) {
 	id, _ := params["id"]
 	var item models.Movement
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := c.DB.Update(id, item)
+
+	lot := models.Lot{
+		ID:      item.IdLot,
+		Lot:     item.Lot,
+		Brand:   item.Brand,
+		DueDate: item.DueDate,
+	}
+	result, err := db.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)
+
+	result, err = c.DB.Update(id, item)
 	if err != nil {
 		returnErr(w, err, "actualizar")
 		return
@@ -127,7 +136,9 @@ func (c MovementController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := c.DB.Delete(id)
+	movement, _ := c.DB.Get(id)
+	result, err := db.LotDB{}.Delete(strconv.Itoa(movement.IdLot))
+	result, err = c.DB.Delete(id)
 	if err != nil {
 		returnErr(w, err, "eliminar")
 		return
@@ -135,5 +146,3 @@ func (c MovementController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.NewEncoder(w).Encode(result)
 }
-
-

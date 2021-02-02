@@ -82,7 +82,7 @@ func (c ProviderController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	idBusiness, err := db.BusinessDB{}.Create(business)
 	if err != nil || idBusiness == -1 {
-		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear Person, error: %v", err))
+		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear Business, error: %v", err))
 		return
 	}
 	provider := models.Provider{

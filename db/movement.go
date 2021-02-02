@@ -16,19 +16,6 @@ type MovementDB struct {
 	Query models.QueryDB
 }
 
-func (db MovementDB) GetInvoices(idProduct string, idWarehouse string) ([]models.Movement, error) {
-	res := make([]models.Movement, 0)
-
-	tsql := fmt.Sprintf(db.Query["getInvoices"].Q, idProduct, idWarehouse)
-	rows, err := DB.Query(tsql)
-	err = db.scan(rows, err, &res, db.Ctx, "GetAllInvoices")
-	if err != nil {
-		return res, err
-	}
-	defer rows.Close()
-	return res, err
-}
-
 func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movement, error) {
 	res := make([]models.Movement, 0)
 
@@ -133,19 +120,10 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		idProvider = sql.Named("IdProvider", nil)
 	}
 
-	lot := sql.Named("Lot", nil)
-	dueDate := sql.Named("DueDate", nil)
-	state := sql.Named("State", nil)
+	lot := sql.Named("IdLot", nil)
 	product, _ := ProductDB{Ctx:   "Product DB", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
 	if product.Perishable {
-		if item.Type == "input" {
-			dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-			checkError(err, "Create", db.Ctx, "Convert Date2")
-			dueDate = sql.Named("DueDate", dateDue)
-		}
-
-		lot = sql.Named("Lot", item.Lot)
-		state = sql.Named("State", item.State)
+		lot = sql.Named("IdLot", item.IdLot)
 	}
 
 	result, err := DB.ExecContext(
@@ -159,10 +137,7 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 		sql.Named("IdUser", item.IdUser),
 		idClient,
 		idProvider,
-		lot,
-		dueDate,
-		state,
-		sql.Named("IdInvoice", item.IdInvoice))
+		lot)
 	if err != nil {
 		return -1, err
 	}
@@ -202,22 +177,13 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		idProvider = sql.Named("IdProvider", nil)
 	}
 
-	lot := sql.Named("Lot", nil)
-	dueDate := sql.Named("DueDate", nil)
-	state := sql.Named("State", nil)
+	lot := sql.Named("IdLot", nil)
 	product, _ := ProductDB{
 		Ctx:   "Product DB",
 		Query: query.Product,
 	}.Get(strconv.Itoa(item.IdProduct))
 	if product.Perishable {
-		if item.Type == "input" {
-			dateDue, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-			checkError(err, "Create", db.Ctx, "Convert Date2")
-			dueDate = sql.Named("DueDate", dateDue)
-		}
-
-		lot = sql.Named("Lot", item.Lot)
-		state = sql.Named("State", item.State)
+		lot = sql.Named("IdLot", item.IdLot)
 	}
 
 	result, err := DB.ExecContext(
@@ -232,10 +198,7 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		sql.Named("IdUser", item.IdUser),
 		idClient,
 		idProvider,
-		lot,
-		dueDate,
-		state,
-		sql.Named("IdInvoice", item.IdInvoice))
+		lot)
 	if err != nil {
 		return -1, err
 	}
@@ -288,18 +251,12 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 	for rows.Next() {
 		var idClient sql.NullInt64
 		var idProvider sql.NullInt64
-		var lot sql.NullString
-		var dueDate sql.NullString
-		var state sql.NullBool
-		var idInvoice sql.NullString
+		var idLot sql.NullInt64
 		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &idClient, &idProvider, &lot, &dueDate, &state, &idInvoice)
+			&item.IdUser, &idClient, &idProvider, &idLot)
 		item.IdClient = int(idClient.Int64)
 		item.IdProvider = int(idProvider.Int64)
-		item.Lot = lot.String
-		item.DueDate = dueDate.String
-		item.State = state.Bool
-		item.IdInvoice = idInvoice.String
+		item.IdLot = int(idLot.Int64)
 		if err != nil {
 			checkError(err, situation, ctx, "Scan rows")
 			return err
@@ -307,6 +264,10 @@ func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx
 			product, _ := ProductDB{Ctx:   "Movement", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
 			productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(product.ID))
 			measure, _ := MeasureDB{}.Get(strconv.Itoa(productMeasure.IdMeasure))
+			lot, _ := LotDB{}.Get(strconv.Itoa(item.IdLot))
+			item.Lot = lot.Lot
+			item.DueDate = lot.DueDate
+			item.Brand = lot.Brand
 			item.Measure = measure.Name
 			item.Product = product.Name
 			item.Perishable = product.Perishable
