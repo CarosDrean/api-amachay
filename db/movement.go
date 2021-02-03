@@ -238,6 +238,11 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 	} else {
 		idProvider = sql.Named("IdProvider", nil)
 	}
+	lot := sql.Named("IdLot", nil)
+	product, _ := ProductDB{Ctx:   "Product DB", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
+	if product.Perishable {
+		lot = sql.Named("IdLot", item.IdLot)
+	}
 
 	result, err := DB.ExecContext(
 		ctx,
@@ -251,7 +256,7 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		sql.Named("IdUser", item.IdUser),
 		idClient,
 		idProvider,
-		sql.Named("IdLot", item.IdLot),
+		lot,
 		sql.Named("IdBrand", item.IdBrand))
 	if err != nil {
 		return -1, err
