@@ -203,11 +203,11 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	// obtener el stock y notificar a telegram
 	GetDataForAlert(item)
 	return result.RowsAffected()
 }
 
+// obtener el stock y notificar a telegram
 func GetDataForAlert(item models.Movement) {
 	stock := GetStock(strconv.Itoa(item.IdWarehouse), item.IdProduct)
 	productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(item.IdProduct))

@@ -108,16 +108,20 @@ func (c MovementController) Create(w http.ResponseWriter, r *http.Request) {
 
 	var item models.Movement
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	lot := models.Lot{
-		Lot:     item.Lot,
-		DueDate: item.DueDate,
+	if item.Lot != "" {
+		lot := models.Lot{
+			Lot:     item.Lot,
+			DueDate: item.DueDate,
+		}
+
+		idLot, err := db.LotDB{}.Create(lot)
+		if err != nil || idLot == -1 {
+			returnErr(w, err, "Create Lot")
+			return
+		}
+		item.IdLot = int(idLot)
 	}
-	idLot, err := db.LotDB{}.Create(lot)
-	if err != nil || idLot == -1 {
-		returnErr(w, err, "Create Lot")
-		return
-	}
-	item.IdLot = int(idLot)
+
 	result, err := c.DB.Create(item)
 	if err != nil {
 		returnErr(w, err, "Create")
@@ -134,12 +138,16 @@ func (c MovementController) Update(w http.ResponseWriter, r *http.Request) {
 	var item models.Movement
 	_ = json.NewDecoder(r.Body).Decode(&item)
 
-	lot := models.Lot{
-		ID:      item.IdLot,
-		Lot:     item.Lot,
-		DueDate: item.DueDate,
+	var result int64
+	var err error
+	if item.Lot != "" {
+		lot := models.Lot{
+			ID:      item.IdLot,
+			Lot:     item.Lot,
+			DueDate: item.DueDate,
+		}
+		result, err = db.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)
 	}
-	result, err := db.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)
 
 	result, err = c.DB.Update(id, item)
 	if err != nil {
