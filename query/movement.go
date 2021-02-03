@@ -24,8 +24,10 @@ var Movement = models.QueryDB{
 	"update": {Q: "update " + movement.Name + " set " + updatesString(movement.Fields) + " where " + movement.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + movement.Name + " where " + movement.Fields[0] + " = @ID"},
 
-	"getAllLotsWarehouse": {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name +
-		" where " + movement.Fields[1] + " =%s and " + movement.Fields[2] + " =%s"},
+	"getAllLotsWarehouse": {Q: "select " + movement.Fields[1] + ", MAX(" + movement.Fields[10] + ") as IdBrand " + ", MAX(" + movement.Fields[9] + ") as IdLot " +
+		"from " + movement.Name +
+		" where " + movement.Fields[1] + " =%s and " + movement.Fields[2] + " =%s " +
+		" group by " + movement.Fields[1] + ", " + movement.Fields[9]},
 	"getAllBrandsWarehouse": {Q: "select " + movement.Fields[1] + ", " + movement.Fields[10] + " from " + movement.Name +
 		" where " + movement.Fields[1] + " =%s and " + movement.Fields[2] + " =%s " +
 		" group by " + movement.Fields[1] + ", " + movement.Fields[10]},
