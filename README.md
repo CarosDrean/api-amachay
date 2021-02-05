@@ -39,4 +39,6 @@ Para compilar el proyecto use:
 ```
 go build
 ```
-Para que el proyecto pueda funcionar correctamente no olvide el archivo **configuration.json** y **configuration-telegram.json**
+Para que el proyecto pueda funcionar correctamente no olvide el archivo **configuration.json** y **configuration-telegram.json**.
+  
+Ademas debera generar las firmas (**private.rsa** y **public.rsa.pub**) para generar el token con OpenSSh y acompañarlo del .exe.
