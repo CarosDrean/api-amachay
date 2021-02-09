@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/query"
+	"strconv"
 )
 
 type ProductDB struct {
@@ -128,6 +130,11 @@ func (db ProductDB) scan(rows *sql.Rows, err error, res *[]models.Product, ctx s
 			if extra != "" {
 				item.Stock = GetStock(extra, item.ID)
 			}
+			category, _ := CategoryDB{
+				Ctx:   "Category DB",
+				Query: query.Category,
+			}.Get(strconv.Itoa(item.IdCategory))
+			item.Category = category.Name
 			*res = append(*res, item)
 		}
 	}

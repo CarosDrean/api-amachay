@@ -7,6 +7,7 @@ type Product struct {
 	Price       float64 `json:"price"`
 	Stock       float64 `json:"stock"`
 	IdCategory  int     `json:"idCategory"`
+	Category    string  `json:"category"`
 	Perishable  bool    `json:"perishable"`
 }
 
@@ -18,6 +19,7 @@ type ProductFill struct {
 	Stock            float64 `json:"stock"`
 	IdProductMeasure int     `json:"idProductMeasure"`
 	IdCategory       int     `json:"idCategory"`
+	Category         string  `json:"category"`
 	IdMeasure        int     `json:"idMeasure"`
 	Measure          string  `json:"measure"`
 	Unity            int     `json:"unity"`

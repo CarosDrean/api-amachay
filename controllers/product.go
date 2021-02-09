@@ -39,6 +39,7 @@ func (c ProductController) GetAllStock(w http.ResponseWriter, r *http.Request) {
 			MinAlert:         productMeasure.MinAlert,
 			Measure:          measure.Name,
 			Perishable:       e.Perishable,
+			Category:         e.Category,
 		}
 		res = append(res, item)
 	}
@@ -67,6 +68,7 @@ func (c ProductController) GetAll(w http.ResponseWriter, r *http.Request) {
 			Unity:            productMeasure.Unity,
 			MinAlert:         productMeasure.MinAlert,
 			Perishable:       e.Perishable,
+			Category:         e.Category,
 		}
 		res = append(res, item)
 	}
