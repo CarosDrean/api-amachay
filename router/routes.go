@@ -1,6 +1,14 @@
 package router
 
-import "github.com/gorilla/mux"
+import (
+	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
+)
+
+func RoutesEcho(g *echo.Group) {
+	c := g.Group("/category")
+	categoryRoutesEcho(c)
+}
 
 func Routes(r *mux.Router) {
 	u := r.PathPrefix("/user").Subrouter()

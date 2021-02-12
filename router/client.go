@@ -11,7 +11,7 @@ import (
 func clientRoutes(s *mux.Router) {
 	ctrl := controllers.ClientsController{
 		DB: db.ClientDB{
-			Ctx:   "Client DB",
+			Ctx:   "Client storage",
 			Query: query.Client,
 		},
 		PersonDB: db.PersonDB{Ctx: "PersonDB", Query: query.Person},

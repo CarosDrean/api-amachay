@@ -11,7 +11,7 @@ import (
 func userRoutes(s *mux.Router) {
 	ctrl := controllers.UserController{
 		DB:       db.UserDB{
-			Ctx:   "User DB",
+			Ctx:   "User storage",
 			Query: query.SystemUser,
 		},
 		PersonDB: db.PersonDB{Ctx: "PersonDB", Query: query.Person},

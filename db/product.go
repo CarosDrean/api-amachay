@@ -131,7 +131,7 @@ func (db ProductDB) scan(rows *sql.Rows, err error, res *[]models.Product, ctx s
 				item.Stock = GetStock(extra, item.ID)
 			}
 			category, _ := CategoryDB{
-				Ctx:   "Category DB",
+				Ctx:   "Category storage",
 				Query: query.Category,
 			}.Get(strconv.Itoa(item.IdCategory))
 			item.Category = category.Name

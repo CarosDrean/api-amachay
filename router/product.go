@@ -10,7 +10,7 @@ import (
 
 func productRoutes(s *mux.Router)  {
 	ctrl := controllers.ProductController{
-		DB: db.ProductDB{Ctx: "Product DB", Query: query.Product},
+		DB: db.ProductDB{Ctx: "Product storage", Query: query.Product},
 	}
 	s.HandleFunc("/all/{id}", mid.CheckSecurity(ctrl.GetAllStock)).Methods("GET")
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")

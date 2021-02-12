@@ -11,7 +11,7 @@ import (
 func movementRoutes(s *mux.Router) {
 	ctrl := movement.MovementController{
 		DB: db.MovementDB{
-			Ctx:   "Movement DB",
+			Ctx:   "Movement storage",
 			Query: query.Movement,
 		},
 	}

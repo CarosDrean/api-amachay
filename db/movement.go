@@ -35,7 +35,7 @@ func (db MovementDB) GetStockLot(idWarehouse int, idProduct int, idLot int) floa
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		checkError(err, "GetStockLot", "Movement DB", "Reading rows")
+		checkError(err, "GetStockLot", "Movement storage", "Reading rows")
 		return 0
 	}
 	for rows.Next() {
@@ -43,7 +43,7 @@ func (db MovementDB) GetStockLot(idWarehouse int, idProduct int, idLot int) floa
 		err := rows.Scan(&stock)
 		item = stock.Float64
 		if err != nil {
-			checkError(err, "GetStockLot", "Movement DB", "Scan rows")
+			checkError(err, "GetStockLot", "Movement storage", "Scan rows")
 			return 0
 		}
 	}
@@ -57,7 +57,7 @@ func (db MovementDB) GetStockBrand(idWarehouse int, idProduct int, idBrand int) 
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		checkError(err, "GetStockBrand", "Movement DB", "Reading rows")
+		checkError(err, "GetStockBrand", "Movement storage", "Reading rows")
 		return 0
 	}
 	for rows.Next() {
@@ -65,7 +65,7 @@ func (db MovementDB) GetStockBrand(idWarehouse int, idProduct int, idBrand int) 
 		err := rows.Scan(&stock)
 		item = stock.Float64
 		if err != nil {
-			checkError(err, "GetStockLot", "Movement DB", "Scan rows")
+			checkError(err, "GetStockLot", "Movement storage", "Scan rows")
 			return 0
 		}
 	}
@@ -75,7 +75,7 @@ func (db MovementDB) GetStockBrand(idWarehouse int, idProduct int, idBrand int) 
 
 func (db MovementDB) GetMovement(idProduct int, idBrand int, idWarehouse int, idLot int) models.Movement {
 	product, _ := ProductDB{
-		Ctx:   "Product DB",
+		Ctx:   "Product storage",
 		Query: query.Product,
 	}.Get(strconv.Itoa(idProduct))
 	productMeasure, _ := ProductMeasureDB{}.GetProduct(strconv.Itoa(product.ID))
@@ -104,7 +104,7 @@ func (db MovementDB) GetAllLotsWarehouse(idProduct string, idWarehouse string)([
 	tsql := fmt.Sprintf(db.Query["getAllLotsWarehouse"].Q, idProduct, idWarehouse)
 	rows, err := DB.Query(tsql)
 	if err != nil {
-		checkError(err, "GetAllBrandsWarehouse", "Movement DB", "Reading rows")
+		checkError(err, "GetAllBrandsWarehouse", "Movement storage", "Reading rows")
 		return res, err
 	}
 	idWarehouseInt, _ := strconv.Atoi(idWarehouse)
@@ -114,7 +114,7 @@ func (db MovementDB) GetAllLotsWarehouse(idProduct string, idWarehouse string)([
 		var idLot sql.NullInt64
 		err := rows.Scan(&idProduct, &idBrand, &idLot)
 		if err != nil {
-			checkError(err, "GetAllBrandsWarehouse", "Movement DB", "Scan rows")
+			checkError(err, "GetAllBrandsWarehouse", "Movement storage", "Scan rows")
 		}
 		movement := db.GetMovement(int(idProduct.Int64), int(idBrand.Int64), idWarehouseInt, int(idLot.Int64))
 		res = append(res, movement)
@@ -130,7 +130,7 @@ func (db MovementDB) GetAllBrandsWarehouse(idProduct string, idWarehouse string)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		checkError(err, "GetAllBrandsWarehouse", "Movement DB", "Reading rows")
+		checkError(err, "GetAllBrandsWarehouse", "Movement storage", "Reading rows")
 		return res, err
 	}
 	idWarehouseInt, _ := strconv.Atoi(idWarehouse)
@@ -139,7 +139,7 @@ func (db MovementDB) GetAllBrandsWarehouse(idProduct string, idWarehouse string)
 		var idBrand sql.NullInt64
 		err := rows.Scan(&idProduct, &idBrand)
 		if err != nil {
-			checkError(err, "GetAllBrandsWarehouse", "Movement DB", "Scan rows")
+			checkError(err, "GetAllBrandsWarehouse", "Movement storage", "Scan rows")
 		}
 		movement := db.GetMovement(int(idProduct.Int64), int(idBrand.Int64), idWarehouseInt, 0)
 		res = append(res, movement)
@@ -205,7 +205,7 @@ func (db MovementDB) Create(item models.Movement) (int64, error) {
 	}
 
 	lot := sql.Named("IdLot", nil)
-	product, _ := ProductDB{Ctx:   "Product DB", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
+	product, _ := ProductDB{Ctx:   "Product storage", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
 	if product.Perishable {
 		lot = sql.Named("IdLot", item.IdLot)
 	}
@@ -262,7 +262,7 @@ func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 		idProvider = sql.Named("IdProvider", nil)
 	}
 	lot := sql.Named("IdLot", nil)
-	product, _ := ProductDB{Ctx:   "Product DB", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
+	product, _ := ProductDB{Ctx:   "Product storage", Query: query.Product}.Get(strconv.Itoa(item.IdProduct))
 	if product.Perishable {
 		lot = sql.Named("IdLot", item.IdLot)
 	}
@@ -308,7 +308,7 @@ func GetStock(idWarehouse string, idProduct int) float64 {
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		checkError(err, "GetStock", "Movement DB", "Reading rows")
+		checkError(err, "GetStock", "Movement storage", "Reading rows")
 		return 0
 	}
 	for rows.Next() {
@@ -316,7 +316,7 @@ func GetStock(idWarehouse string, idProduct int) float64 {
 		err := rows.Scan(&stock)
 		item = stock.Float64
 		if err != nil {
-			checkError(err, "GetStock", "Movement DB", "Scan rows")
+			checkError(err, "GetStock", "Movement storage", "Scan rows")
 			return 0
 		}
 	}

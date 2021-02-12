@@ -5,11 +5,26 @@ import (
 	"github.com/CarosDrean/api-amachay/db"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 type CategoryController struct {
 	DB db.CategoryDB
+}
+
+type CategoryControllerEcho struct {
+	Storage db.CategoryDB
+}
+
+func (cc CategoryControllerEcho) GetAll(c echo.Context) error {
+	data, err := cc.Storage.GetAll()
+	if err != nil {
+		response := newResponse(Error, "Hubo un problema al obtener todas las categorias", nil)
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+	response := newResponse(Message, "Ok", data)
+	return c.JSON(http.StatusOK, response)
 }
 
 func (c CategoryController) GetAll(w http.ResponseWriter, r *http.Request) {
