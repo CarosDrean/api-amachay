@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 type InvoiceController struct {
-	DB db.InvoiceDB
+	DB storage.InvoiceDB
 }
 
 func (c InvoiceController) GetAll(w http.ResponseWriter, r *http.Request) {

@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
+	"github.com/CarosDrean/api-amachay/interfaces"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
 	"github.com/labstack/echo/v4"
@@ -10,15 +11,19 @@ import (
 )
 
 type CategoryController struct {
-	DB db.CategoryDB
+	DB storage.CategoryDB
 }
 
-type CategoryControllerEcho struct {
-	Storage db.CategoryDB
+type Category struct {
+	storage interfaces.CategoryStorage
 }
 
-func (cc CategoryControllerEcho) GetAll(c echo.Context) error {
-	data, err := cc.Storage.GetAll()
+func NewCategory(storage interfaces.CategoryStorage) Category {
+	return Category{storage}
+}
+
+func (cc Category) GetAll(c echo.Context) error {
+	data, err := cc.storage.GetAll()
 	if err != nil {
 		response := newResponse(Error, "Hubo un problema al obtener todas las categorias", nil)
 		return c.JSON(http.StatusInternalServerError, response)
@@ -42,7 +47,7 @@ func (c CategoryController) Get(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	item, err := c.DB.Get(id)
+	item, err := c.DB.GetByID(id)
 	if err != nil {
 		returnErr(w, err, "obtener")
 		return
@@ -56,7 +61,7 @@ func (c CategoryController) Create(w http.ResponseWriter, r *http.Request) {
 
 	var item models.Category
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := c.DB.Create(item)
+	result, err := c.DB.Create(&item)
 	if err != nil {
 		returnErr(w, err, "crear")
 		return
@@ -71,7 +76,7 @@ func (c CategoryController) Update(w http.ResponseWriter, r *http.Request) {
 	id, _ := params["id"]
 	var item models.Category
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := c.DB.Update(id, item)
+	result, err := c.DB.Update(id, &item)
 	if err != nil {
 		returnErr(w, err, "actualizar")
 		return

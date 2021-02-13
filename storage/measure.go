@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func (db MeasureDB) Get(id string) (models.Measure, error) {
 	tsql := fmt.Sprintf(query.Measure["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
-	err = db.scan(rows, err, &res, "measure", "Get")
+	err = db.scan(rows, err, &res, "measure", "GetByID")
 	if err != nil {
 		return models.Measure{}, err
 	}

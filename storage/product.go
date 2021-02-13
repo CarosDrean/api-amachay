@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"context"
@@ -133,7 +133,7 @@ func (db ProductDB) scan(rows *sql.Rows, err error, res *[]models.Product, ctx s
 			category, _ := CategoryDB{
 				Ctx:   "Category storage",
 				Query: query.Category,
-			}.Get(strconv.Itoa(item.IdCategory))
+			}.GetByID(strconv.Itoa(item.IdCategory))
 			item.Category = category.Name
 			*res = append(*res, item)
 		}

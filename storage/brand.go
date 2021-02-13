@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func (db BrandDB) Get(id string) (models.Brand, error) {
 	tsql := fmt.Sprintf(query.Brand["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
-	err = db.scan(rows, err, &res, "Brand", "Get")
+	err = db.scan(rows, err, &res, "Brand", "GetByID")
 	if err != nil {
 		return models.Brand{}, err
 	}

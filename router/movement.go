@@ -2,7 +2,7 @@ package router
 
 import (
 	movement "github.com/CarosDrean/api-amachay/controllers"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	mid "github.com/CarosDrean/api-amachay/middleware"
 	"github.com/CarosDrean/api-amachay/query"
 	"github.com/gorilla/mux"
@@ -10,7 +10,7 @@ import (
 
 func movementRoutes(s *mux.Router) {
 	ctrl := movement.MovementController{
-		DB: db.MovementDB{
+		DB: storage.MovementDB{
 			Ctx:   "Movement storage",
 			Query: query.Movement,
 		},

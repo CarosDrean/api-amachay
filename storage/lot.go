@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"context"
@@ -30,7 +30,7 @@ func (db LotDB) Get(id string) (models.Lot, error) {
 	tsql := fmt.Sprintf(query.Lot["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
-	err = db.scan(rows, err, &res, "lot", "Get")
+	err = db.scan(rows, err, &res, "lot", "GetByID")
 	if err != nil {
 		return models.Lot{}, err
 	}
@@ -53,7 +53,7 @@ func (db LotDB) Create(item models.Lot) (int64, error) {
 	dueDate := sql.Named("DueDate", nil)
 	if item.DueDate != "" {
 		date, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-		checkError(err, "Create", "lot db", "Convert Date")
+		checkError(err, "Create", "lot storage", "Convert Date")
 		dueDate = sql.Named("DueDate", date)
 	}
 
@@ -75,7 +75,7 @@ func (db LotDB) Update(id string, item models.Lot) (int64, error) {
 	dueDate := sql.Named("DueDate", nil)
 	if item.DueDate != "" {
 		date, err := time.Parse(time.RFC3339, item.DueDate+"T05:00:00Z")
-		checkError(err, "Create", "lot db", "Convert Date")
+		checkError(err, "Create", "lot storage", "Convert Date")
 		dueDate = sql.Named("DueDate", date)
 	}
 	result, err := DB.ExecContext(

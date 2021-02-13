@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -10,7 +10,7 @@ import (
 )
 
 type MovementController struct {
-	DB db.MovementDB
+	DB storage.MovementDB
 }
 
 func (c MovementController) GetAllWarehouseFilter(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +53,7 @@ func (c MovementController) GetAllBrandsWarehouse(w http.ResponseWriter, r *http
 
 	items, err := c.DB.GetAllBrandsWarehouse(item.ID, item.AuxID)
 	if err != nil {
-		returnErr(w, err, "Get All Brands warehouse")
+		returnErr(w, err, "GetByID All Brands warehouse")
 		return
 	}
 	res := make([]models.Movement, 0)
@@ -114,7 +114,7 @@ func (c MovementController) Create(w http.ResponseWriter, r *http.Request) {
 			DueDate: item.DueDate,
 		}
 
-		idLot, err := db.LotDB{}.Create(lot)
+		idLot, err := storage.LotDB{}.Create(lot)
 		if err != nil || idLot == -1 {
 			returnErr(w, err, "Create Lot")
 			return
@@ -146,7 +146,7 @@ func (c MovementController) Update(w http.ResponseWriter, r *http.Request) {
 			Lot:     item.Lot,
 			DueDate: item.DueDate,
 		}
-		result, err = db.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)
+		result, err = storage.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)
 	}
 
 	result, err = c.DB.Update(id, item)
@@ -163,7 +163,7 @@ func (c MovementController) Delete(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	movement, _ := c.DB.Get(id)
-	result, err := db.LotDB{}.Delete(strconv.Itoa(movement.IdLot))
+	result, err := storage.LotDB{}.Delete(strconv.Itoa(movement.IdLot))
 	result, err = c.DB.Delete(id)
 	if err != nil {
 		returnErr(w, err, "eliminar")

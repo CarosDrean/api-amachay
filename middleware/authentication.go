@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/constants"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/CarosDrean/api-amachay/query"
 	"github.com/dgrijalva/jwt-go"
@@ -109,11 +109,11 @@ func Login(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	stateLogin, id := db.ValidateSystemUserLogin(user.User, user.Password)
+	stateLogin, id := storage.ValidateSystemUserLogin(user.User, user.Password)
 
 	switch stateLogin {
 	case constants.Accept:
-		systemUser, _ := db.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(id)
+		systemUser, _ := storage.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(id)
 		userResult := models.UserResult{ID: id, Role: systemUser.Role}
 		token := GenerateJWT(userResult)
 		result := models.ResponseToken{Token: token}

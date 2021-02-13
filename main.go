@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/constants"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/helper"
 	"github.com/CarosDrean/api-amachay/middleware"
 	routes "github.com/CarosDrean/api-amachay/router"
@@ -29,7 +29,7 @@ func main() {
 }
 
 func apiEcho() {
-	db.DB = helper.Get()
+	storage.DB = helper.Get()
 	e := echo.New()
 
 	myLog, err := os.OpenFile(
@@ -63,7 +63,7 @@ func indexEcho(c echo.Context) error {
 func api() {
 	r := mux.NewRouter()
 
-	db.DB = helper.Get()
+	storage.DB = helper.Get()
 
 	r.HandleFunc("/", indexRouter)
 	r.HandleFunc("/api/login", middleware.Login)

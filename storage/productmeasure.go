@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func (db ProductMeasureDB) Get(id string) (models.ProductMeasure, error) {
 	tsql := fmt.Sprintf(query.ProductMeasure["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
-	err = db.scan(rows, err, &res, "product measure", "Get")
+	err = db.scan(rows, err, &res, "product measure", "GetByID")
 	if err != nil {
 		return models.ProductMeasure{}, err
 	}
@@ -45,7 +45,7 @@ func (db ProductMeasureDB) GetProduct(id string) (models.ProductMeasure, error) 
 	tsql := fmt.Sprintf(query.ProductMeasure["getProduct"].Q, id)
 	rows, err := DB.Query(tsql)
 
-	err = db.scan(rows, err, &res, "product measure", "Get")
+	err = db.scan(rows, err, &res, "product measure", "GetByID")
 	if err != nil {
 		return models.ProductMeasure{}, err
 	}

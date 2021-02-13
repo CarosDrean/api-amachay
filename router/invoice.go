@@ -2,14 +2,14 @@ package router
 
 import (
 	"github.com/CarosDrean/api-amachay/controllers"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	mid "github.com/CarosDrean/api-amachay/middleware"
 	"github.com/gorilla/mux"
 )
 
 func invoiceRoutes(s *mux.Router) {
 	ctrl := controllers.InvoiceController{
-		DB: db.InvoiceDB{},
+		DB: storage.InvoiceDB{},
 	}
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")

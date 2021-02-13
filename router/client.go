@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/CarosDrean/api-amachay/controllers"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	mid "github.com/CarosDrean/api-amachay/middleware"
 	"github.com/CarosDrean/api-amachay/query"
 	"github.com/gorilla/mux"
@@ -10,11 +10,11 @@ import (
 
 func clientRoutes(s *mux.Router) {
 	ctrl := controllers.ClientsController{
-		DB: db.ClientDB{
+		DB: storage.ClientDB{
 			Ctx:   "Client storage",
 			Query: query.Client,
 		},
-		PersonDB: db.PersonDB{Ctx: "PersonDB", Query: query.Person},
+		PersonDB: storage.PersonDB{Ctx: "PersonDB", Query: query.Person},
 	}
 	s.HandleFunc("/", mid.CheckSecurity(ctrl.GetAll)).Methods("GET")
 	s.HandleFunc("/{id}", mid.CheckSecurity(ctrl.Get)).Methods("GET")

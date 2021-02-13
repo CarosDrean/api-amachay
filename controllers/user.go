@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -11,8 +11,8 @@ import (
 )
 
 type UserController struct {
-	DB       db.UserDB
-	PersonDB db.PersonDB
+	DB       storage.UserDB
+	PersonDB storage.PersonDB
 }
 
 func (c UserController) GetAll(w http.ResponseWriter, r *http.Request) {

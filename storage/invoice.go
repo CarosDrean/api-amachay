@@ -1,4 +1,4 @@
-package db
+package storage
 
 import (
 	"context"
@@ -31,7 +31,7 @@ func (db InvoiceDB) Get(id string) (models.Invoice, error) {
 	tsql := fmt.Sprintf(query.Invoice["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
-	err = db.scan(rows, err, &res, "invoice", "Get")
+	err = db.scan(rows, err, &res, "invoice", "GetByID")
 	if err != nil {
 		return models.Invoice{}, err
 	}

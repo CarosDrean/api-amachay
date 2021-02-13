@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/db"
+	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -10,8 +10,8 @@ import (
 )
 
 type ClientsController struct {
-	DB db.ClientDB
-	PersonDB db.PersonDB
+	DB       storage.ClientDB
+	PersonDB storage.PersonDB
 }
 
 func (c ClientsController) GetAll(w http.ResponseWriter, r *http.Request) {
