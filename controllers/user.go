@@ -94,7 +94,7 @@ func (c UserController) Create(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear Person, error: %v", err))
 		return
 	}
-	user := models.SystemUser{
+	user := models.User{
 		Username:    userPerson.Username,
 		Password:    userPerson.Password,
 		Role:        userPerson.Role,
@@ -132,7 +132,7 @@ func (c UserController) Update(w http.ResponseWriter, r *http.Request) {
 
 	result, err := c.PersonDB.Update(strconv.Itoa(int(item.IdPerson)), person)
 
-	user := models.SystemUser{
+	user := models.User{
 		ID:          item.ID,
 		Username:    item.Username,
 		Password:    item.Password,

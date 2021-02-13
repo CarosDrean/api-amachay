@@ -1,6 +1,6 @@
 package models
 
-type SystemUser struct {
+type User struct {
 	ID          int    `json:"_id"`
 	Username    string `json:"username"`
 	Password    string `json:"password"`
@@ -9,12 +9,12 @@ type SystemUser struct {
 	IdWarehouse int    `json:"idWarehouse"`
 }
 
-type UserResult struct {
+type ClaimUser struct {
 	ID   string `json:"_id"`
 	Role string `json:"role"`
 }
 
-type UserLogin struct {
+type Login struct {
 	User     string `json:"username"`
 	Password string `json:"password"`
 }

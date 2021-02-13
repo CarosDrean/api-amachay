@@ -50,6 +50,7 @@ func apiEcho() {
 	e.Use(mid.LoggerWithConfig(logConfig))
 
 	e.GET("/", indexEcho)
+	e.POST("/api/login", middleware.LoginEcho)
 	api := e.Group("/api")
 	routes.RoutesEcho(api)
 

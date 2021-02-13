@@ -17,8 +17,8 @@ type UserDB struct {
 	Query models.QueryDB
 }
 
-func (db UserDB) GetAll() ([]models.SystemUser, error) {
-	res := make([]models.SystemUser, 0)
+func (db UserDB) GetAll() ([]models.User, error) {
+	res := make([]models.User, 0)
 
 	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
@@ -31,21 +31,21 @@ func (db UserDB) GetAll() ([]models.SystemUser, error) {
 	return res, nil
 }
 
-func (db UserDB) Get(id string) (models.SystemUser, error) {
-	res := make([]models.SystemUser, 0)
+func (db UserDB) Get(id string) (models.User, error) {
+	res := make([]models.User, 0)
 
 	tsql := fmt.Sprintf(db.Query["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		return models.SystemUser{}, err
+		return models.User{}, err
 	}
 	defer rows.Close()
 	return res[0], nil
 }
 
-func (db UserDB) Create(item models.SystemUser) (int64, error) {
+func (db UserDB) Create(item models.User) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(db.Query["insert"].Q)
 
@@ -70,7 +70,7 @@ func (db UserDB) Create(item models.SystemUser) (int64, error) {
 	return result.RowsAffected()
 }
 
-func (db UserDB) Update(id string, item models.SystemUser) (int64, error) {
+func (db UserDB) Update(id string, item models.User) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(db.Query["update"].Q)
 
@@ -112,9 +112,9 @@ func (db UserDB) Delete(id string) (int64, error) {
 	return result.RowsAffected()
 }
 
-func GetSystemUserFromUserName(userName string) []models.SystemUser {
-	res := make([]models.SystemUser, 0)
-	var item models.SystemUser
+func GetSystemUserFromUserName(userName string) []models.User {
+	res := make([]models.User, 0)
+	var item models.User
 
 	tsql := fmt.Sprintf(query.SystemUser["getUserName"].Q, userName)
 
@@ -171,8 +171,8 @@ func encrypt(password string) string {
 	return string(hashedPassword)
 }
 
-func (db UserDB) scan(rows *sql.Rows, err error, res *[]models.SystemUser, ctx string, situation string) error {
-	var item models.SystemUser
+func (db UserDB) scan(rows *sql.Rows, err error, res *[]models.User, ctx string, situation string) error {
+	var item models.User
 	if err != nil {
 		checkError(err, situation, ctx, "Reading rows")
 		return err

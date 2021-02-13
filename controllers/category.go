@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/interfaces"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/storage"
+	"github.com/CarosDrean/api-amachay/utils"
 	"github.com/gorilla/mux"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -25,10 +26,10 @@ func NewCategory(storage interfaces.CategoryStorage) Category {
 func (cc Category) GetAll(c echo.Context) error {
 	data, err := cc.storage.GetAll()
 	if err != nil {
-		response := newResponse(Error, "Hubo un problema al obtener todas las categorias", nil)
+		response := utils.NewResponse(utils.Error, "Hubo un problema al obtener todas las categorias", nil)
 		return c.JSON(http.StatusInternalServerError, response)
 	}
-	response := newResponse(Message, "Ok", data)
+	response := utils.NewResponse(utils.Message, "Ok", data)
 	return c.JSON(http.StatusOK, response)
 }
 

@@ -21,5 +21,5 @@ func categoryRoutes(s *mux.Router) {
 
 func categoryRoutesEcho(g *echo.Group) {
 	h := controllers.NewCategory(storage.CategoryDB{})
-	g.GET("/", h.GetAll)
+	g.GET("/", h.GetAll, mid.Authentication)
 }

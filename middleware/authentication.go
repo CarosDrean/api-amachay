@@ -1,64 +1,79 @@
 package middleware
 
 import (
-	"crypto/rsa"
 	"encoding/json"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/constants"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
 	"github.com/CarosDrean/api-amachay/query"
+	"github.com/CarosDrean/api-amachay/storage"
+	"github.com/CarosDrean/api-amachay/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
-	"io/ioutil"
+	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
-	"time"
 )
 
-var (
-	privateKey *rsa.PrivateKey
-	publicKey  *rsa.PublicKey
-)
+func Authentication(f echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		token := c.Request().Header.Get("Authorization")
+		_, err := ValidateToken(token)
+		if err != nil {
+			return c.JSON(http.StatusForbidden, map[string]string{"error": "no permitido"})
+		}
 
-func init() {
-	privateBytes, err := ioutil.ReadFile("./private.rsa")
-	if err != nil {
-		log.Fatal("No se pudo leer")
-	}
-
-	publicBytes, err := ioutil.ReadFile("./public.rsa.pub")
-	if err != nil {
-		log.Fatal("No se pudo leer")
-	}
-
-	privateKey, err = jwt.ParseRSAPrivateKeyFromPEM(privateBytes)
-	if err != nil {
-		log.Fatal("No se pudo leer")
-	}
-	publicKey, err = jwt.ParseRSAPublicKeyFromPEM(publicBytes)
-	if err != nil {
-		log.Fatal("No se pudo leer")
+		return f(c)
 	}
 }
 
-func GenerateJWT(userResult models.UserResult) string {
-	claims := models.Claim{
-		UserResult: userResult,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-			Issuer:    "Admin",
-		},
+func LoginEcho(c echo.Context) error {
+	data := models.Login{}
+	err := c.Bind(&data)
+	if err != nil {
+		resp := utils.NewResponse(utils.Error, "structura no valida", nil)
+		return c.JSON(http.StatusBadRequest, resp)
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	result, err := token.SignedString(privateKey)
-	if err != nil {
-		log.Fatal("No se pudo firmar el token")
+	bUser, bPassword, idUser := validationLogin(&data)
+	if !bUser || !bPassword {
+		message := "¡No existe Usuario!"
+		if bUser {
+			message = "¡Contraseña Incorrecta!"
+		}
+		resp := utils.NewResponse(utils.Error, message, nil)
+		return c.JSON(http.StatusBadRequest, resp)
 	}
-	return result
+
+	token, err := GenerateJWT(assemblyClaimUser(idUser))
+	if err != nil {
+		resp := utils.NewResponse(utils.Error, "no se pudo generar el token", nil)
+		return c.JSON(http.StatusInternalServerError, resp)
+	}
+	dataToken := map[string]string{"token": token}
+	resp := utils.NewResponse(utils.Message, "Ok", dataToken)
+	return c.JSON(http.StatusOK, resp)
 }
 
+func assemblyClaimUser(idUser string) models.ClaimUser {
+	user, _ := storage.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(idUser)
+	return models.ClaimUser{ID: idUser, Role: user.Role}
+}
+
+// 1er true: usuario existe, 2do true password correcto, string: id de usuario
+func validationLogin(data *models.Login) (bool, bool, string) {
+	stateLogin, id := storage.ValidateSystemUserLogin(data.User, data.Password)
+	switch stateLogin {
+	case constants.Accept:
+		return true, true, id
+	case constants.NotFound:
+		return false, false, ""
+	case constants.InvalidCredentials:
+		return true, false, ""
+	default:
+		return false, false, ""
+	}
+}
 
 func CheckSecurity(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -90,11 +105,9 @@ func CheckSecurity(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		if token.Valid {
-			w.WriteHeader(http.StatusAccepted)
 			//fmt.Fprintf(w, "Bienvenido al sistema")
 			next(w, r)
 		} else {
-			w.WriteHeader(http.StatusUnauthorized)
 			_, _ = fmt.Fprintf(w, "Su token no es valido fin")
 			return
 		}
@@ -102,20 +115,20 @@ func CheckSecurity(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func Login(w http.ResponseWriter, r *http.Request){
-	var user models.UserLogin
-	err := json.NewDecoder(r.Body).Decode(&user)
+	login := models.Login{}
+	err := json.NewDecoder(r.Body).Decode(&login)
 	if err != nil {
 		_, _ = fmt.Fprintf(w, "Error al leer el usuario %s\n", err)
 		return
 	}
 
-	stateLogin, id := storage.ValidateSystemUserLogin(user.User, user.Password)
+	stateLogin, id := storage.ValidateSystemUserLogin(login.User, login.Password)
 
 	switch stateLogin {
 	case constants.Accept:
 		systemUser, _ := storage.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(id)
-		userResult := models.UserResult{ID: id, Role: systemUser.Role}
-		token := GenerateJWT(userResult)
+		userResult := models.ClaimUser{ID: id, Role: systemUser.Role}
+		token, _ := GenerateJWT(userResult)
 		result := models.ResponseToken{Token: token}
 		jsonResult, err := json.Marshal(result)
 		if err != nil {
