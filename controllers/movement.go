@@ -2,15 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
 
 type MovementController struct {
-	DB storage.MovementDB
+	DB mssql.MovementDB
 }
 
 func (c MovementController) GetAllWarehouseFilter(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +114,7 @@ func (c MovementController) Create(w http.ResponseWriter, r *http.Request) {
 			DueDate: item.DueDate,
 		}
 
-		idLot, err := storage.LotDB{}.Create(lot)
+		idLot, err := mssql.LotDB{}.Create(lot)
 		if err != nil || idLot == -1 {
 			returnErr(w, err, "Create Lot")
 			return
@@ -146,7 +146,7 @@ func (c MovementController) Update(w http.ResponseWriter, r *http.Request) {
 			Lot:     item.Lot,
 			DueDate: item.DueDate,
 		}
-		result, err = storage.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)
+		result, err = mssql.LotDB{}.Update(strconv.Itoa(item.IdLot), lot)
 	}
 
 	result, err = c.DB.Update(id, item)
@@ -163,7 +163,7 @@ func (c MovementController) Delete(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	movement, _ := c.DB.Get(id)
-	result, err := storage.LotDB{}.Delete(strconv.Itoa(movement.IdLot))
+	result, err := mssql.LotDB{}.Delete(strconv.Itoa(movement.IdLot))
 	result, err = c.DB.Delete(id)
 	if err != nil {
 		returnErr(w, err, "eliminar")

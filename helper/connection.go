@@ -20,13 +20,13 @@ func Get() *sql.DB {
 
 	db, err := sql.Open("sqlserver", dsn)
 	if err != nil {
-		log.Println("Error connect storage!")
+		log.Println("Error connect mssql!")
 		log.Panic(err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Println("Error connect storage!")
+		log.Println("Error connect mssql!")
 		log.Panic(err)
 	}
 

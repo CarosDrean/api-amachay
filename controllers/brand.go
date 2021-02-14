@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 type BrandController struct {
-	DB storage.BrandDB
+	DB mssql.BrandDB
 }
 
 func (c BrandController) GetAll(w http.ResponseWriter, r *http.Request) {

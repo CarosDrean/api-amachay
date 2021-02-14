@@ -3,15 +3,15 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
 
 type ProviderController struct {
-	DB storage.ProviderDB
+	DB mssql.ProviderDB
 }
 
 func (c ProviderController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -24,7 +24,7 @@ func (c ProviderController) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, e := range providers {
-		business, _ := storage.BusinessDB{}.Get(strconv.Itoa(int(e.IdBusiness)))
+		business, _ := mssql.BusinessDB{}.Get(strconv.Itoa(int(e.IdBusiness)))
 		item := models.ProviderBusiness{
 			ID:         e.ID,
 			IdBusiness: business.ID,
@@ -51,7 +51,7 @@ func (c ProviderController) Get(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al obtener, error: %v", err))
 		return
 	}
-	business, _ := storage.BusinessDB{}.Get(strconv.Itoa(int(item.IdBusiness)))
+	business, _ := mssql.BusinessDB{}.Get(strconv.Itoa(int(item.IdBusiness)))
 	providerBusiness := models.ProviderBusiness{
 		ID:         item.ID,
 		IdBusiness: business.ID,
@@ -80,7 +80,7 @@ func (c ProviderController) Create(w http.ResponseWriter, r *http.Request) {
 		Phone:   providerBusiness.Phone,
 		Mail:    providerBusiness.Mail,
 	}
-	idBusiness, err := storage.BusinessDB{}.Create(business)
+	idBusiness, err := mssql.BusinessDB{}.Create(business)
 	if err != nil || idBusiness == -1 {
 		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al crear Business, error: %v", err))
 		return
@@ -116,7 +116,7 @@ func (c ProviderController) Update(w http.ResponseWriter, r *http.Request) {
 		Mail:    providerBusiness.Mail,
 	}
 
-	result, err := storage.BusinessDB{}.Update(strconv.Itoa(int(providerBusiness.IdBusiness)), business)
+	result, err := mssql.BusinessDB{}.Update(strconv.Itoa(int(providerBusiness.IdBusiness)), business)
 
 	provider := models.Provider{
 		ID:         providerBusiness.ID,
@@ -138,7 +138,7 @@ func (c ProviderController) Delete(w http.ResponseWriter, r *http.Request) {
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	item, _ := c.DB.Get(id)
-	result, err := storage.BusinessDB{}.Delete(strconv.Itoa(int(item.IdBusiness)))
+	result, err := mssql.BusinessDB{}.Delete(strconv.Itoa(int(item.IdBusiness)))
 	result, err = c.DB.Delete(id)
 	if err != nil {
 		_, _ = fmt.Fprintln(w, fmt.Sprintf("Hubo un error al eliminar, error: %v", err))

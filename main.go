@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/CarosDrean/api-amachay/constants"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/helper"
 	"github.com/CarosDrean/api-amachay/middleware"
-	routes "github.com/CarosDrean/api-amachay/router"
+	routes "github.com/CarosDrean/api-amachay/routes"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
 	"github.com/gonutz/w32"
 	"github.com/gorilla/mux"
 	"github.com/labstack/echo/v4"
@@ -29,7 +29,7 @@ func main() {
 }
 
 func apiEcho() {
-	storage.DB = helper.Get()
+	mssql.DB = helper.Get()
 	e := echo.New()
 
 	myLog, err := os.OpenFile(
@@ -64,7 +64,7 @@ func indexEcho(c echo.Context) error {
 func api() {
 	r := mux.NewRouter()
 
-	storage.DB = helper.Get()
+	mssql.DB = helper.Get()
 
 	r.HandleFunc("/", indexRouter)
 	r.HandleFunc("/api/login", middleware.Login)

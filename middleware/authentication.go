@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/CarosDrean/api-amachay/constants"
 	"github.com/CarosDrean/api-amachay/models"
-	"github.com/CarosDrean/api-amachay/query"
-	"github.com/CarosDrean/api-amachay/storage"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
+	"github.com/CarosDrean/api-amachay/storage/query-sql"
 	"github.com/CarosDrean/api-amachay/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
@@ -56,13 +56,13 @@ func LoginEcho(c echo.Context) error {
 }
 
 func assemblyClaimUser(idUser string) models.ClaimUser {
-	user, _ := storage.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(idUser)
+	user, _ := mssql.UserDB{Ctx: "Auth", Query: query_sql.SystemUser}.Get(idUser)
 	return models.ClaimUser{ID: idUser, Role: user.Role}
 }
 
 // 1er true: usuario existe, 2do true password correcto, string: id de usuario
 func validationLogin(data *models.Login) (bool, bool, string) {
-	stateLogin, id := storage.ValidateSystemUserLogin(data.User, data.Password)
+	stateLogin, id := mssql.ValidateSystemUserLogin(data.User, data.Password)
 	switch stateLogin {
 	case constants.Accept:
 		return true, true, id
@@ -122,11 +122,11 @@ func Login(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	stateLogin, id := storage.ValidateSystemUserLogin(login.User, login.Password)
+	stateLogin, id := mssql.ValidateSystemUserLogin(login.User, login.Password)
 
 	switch stateLogin {
 	case constants.Accept:
-		systemUser, _ := storage.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(id)
+		systemUser, _ := mssql.UserDB{Ctx: "Auth", Query: query_sql.SystemUser}.Get(id)
 		userResult := models.ClaimUser{ID: id, Role: systemUser.Role}
 		token, _ := GenerateJWT(userResult)
 		result := models.ResponseToken{Token: token}

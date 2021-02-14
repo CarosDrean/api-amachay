@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/CarosDrean/api-amachay/interfaces"
 	"github.com/CarosDrean/api-amachay/models"
-	"github.com/CarosDrean/api-amachay/storage"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
 	"github.com/CarosDrean/api-amachay/utils"
 	"github.com/gorilla/mux"
 	"github.com/labstack/echo/v4"
@@ -12,7 +12,7 @@ import (
 )
 
 type CategoryController struct {
-	DB storage.CategoryDB
+	DB mssql.CategoryDB
 }
 
 type Category struct {

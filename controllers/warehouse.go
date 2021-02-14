@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 type WarehouseController struct {
-	DB storage.WarehouseDB
+	DB mssql.WarehouseDB
 }
 
 func (c WarehouseController) GetAll(w http.ResponseWriter, r *http.Request) {

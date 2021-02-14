@@ -2,15 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
-	"github.com/CarosDrean/api-amachay/storage"
 	"github.com/CarosDrean/api-amachay/models"
+	"github.com/CarosDrean/api-amachay/storage/mssql"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
 
 type ProductController struct {
-	DB storage.ProductDB
+	DB mssql.ProductDB
 }
 
 func (c ProductController) GetAllStock(w http.ResponseWriter, r *http.Request) {
@@ -24,8 +24,8 @@ func (c ProductController) GetAllStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, e := range products {
-		productMeasure, _ := storage.ProductMeasureDB{}.GetProduct(strconv.Itoa(e.ID))
-		measure, _ := storage.MeasureDB{}.Get(strconv.Itoa(productMeasure.IdMeasure))
+		productMeasure, _ := mssql.ProductMeasureDB{}.GetProduct(strconv.Itoa(e.ID))
+		measure, _ := mssql.MeasureDB{}.Get(strconv.Itoa(productMeasure.IdMeasure))
 		item := models.ProductFill{
 			ID:               e.ID,
 			Name:             e.Name,
@@ -55,7 +55,7 @@ func (c ProductController) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, e := range products {
-		productMeasure, _ := storage.ProductMeasureDB{}.GetProduct(strconv.Itoa(e.ID))
+		productMeasure, _ := mssql.ProductMeasureDB{}.GetProduct(strconv.Itoa(e.ID))
 		item := models.ProductFill{
 			ID:               e.ID,
 			Name:             e.Name,
@@ -85,7 +85,7 @@ func (c ProductController) Get(w http.ResponseWriter, r *http.Request) {
 		returnErr(w, err, "obtener")
 		return
 	}
-	productMeasure, err := storage.ProductMeasureDB{}.GetProduct(id)
+	productMeasure, err := mssql.ProductMeasureDB{}.GetProduct(id)
 	if err != nil {
 		returnErr(w, err, "obtener product measure")
 		return
@@ -132,7 +132,7 @@ func (c ProductController) Create(w http.ResponseWriter, r *http.Request) {
 		Unity:     item.Unity,
 		MinAlert:  item.MinAlert,
 	}
-	result, err := storage.ProductMeasureDB{}.Create(productMeasure)
+	result, err := mssql.ProductMeasureDB{}.Create(productMeasure)
 	if err != nil || idProduct == -1 {
 		returnErr(w, err, "crear product measure")
 		return
@@ -171,7 +171,7 @@ func (c ProductController) Update(w http.ResponseWriter, r *http.Request) {
 		Unity:     item.Unity,
 		MinAlert:  item.MinAlert,
 	}
-	result, err = storage.ProductMeasureDB{}.Update(strconv.Itoa(item.IdProductMeasure), productMeasure)
+	result, err = mssql.ProductMeasureDB{}.Update(strconv.Itoa(item.IdProductMeasure), productMeasure)
 	if err != nil {
 		returnErr(w, err, "update product measure")
 		return
@@ -184,7 +184,7 @@ func (c ProductController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := storage.ProductMeasureDB{}.DeleteProduct(id)
+	result, err := mssql.ProductMeasureDB{}.DeleteProduct(id)
 	if err != nil {
 		returnErr(w, err, "delete product measure")
 		return
