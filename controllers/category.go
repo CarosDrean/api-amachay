@@ -23,7 +23,23 @@ func NewCategory(storage interfaces.CategoryStorage) Category {
 	return Category{storage}
 }
 
-func (cc Category) GetAll(c echo.Context) error {
+func (cc *Category) Create(c echo.Context) error {
+	data := models.Category{}
+	err := c.Bind(&data)
+	if err != nil {
+		response := utils.NewResponse(utils.Error, "La categoria no tiene la estructura correcta", nil)
+		return c.JSON(http.StatusBadRequest, response)
+	}
+	_, err = cc.storage.Create(&data)
+	if err != nil {
+		response := utils.NewResponse(utils.Error, "Hubo un error al crear la categoria", nil)
+		return c.JSON(http.StatusInternalServerError, response)
+	}
+	response := utils.NewResponse(utils.Message, "Categoria creada correctamente", nil)
+	return c.JSON(http.StatusCreated, response)
+}
+
+func (cc *Category) GetAll(c echo.Context) error {
 	data, err := cc.storage.GetAll()
 	if err != nil {
 		response := utils.NewResponse(utils.Error, "Hubo un problema al obtener todas las categorias", nil)
