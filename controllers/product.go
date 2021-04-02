@@ -46,6 +46,22 @@ func (c ProductController) GetAllStock(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(res)
 }
 
+func(c ProductController) GetProductWarehouse(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	var params = mux.Vars(r)
+	idWarehouse, _ := params["idWarehouse"]
+
+	items, err := c.DB.GetProductWarehouse(idWarehouse)
+	if err != nil {
+		returnErr(w, err, "GetProductWarehouse")
+		return
+	}
+	_ = json.NewEncoder(w).Encode(items)
+
+
+
+}
+
 func (c ProductController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	res := make([]models.ProductFill, 0)
@@ -74,6 +90,33 @@ func (c ProductController) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = json.NewEncoder(w).Encode(res)
 }
+func (c ProductController) GetAllNoIgnore(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var params = mux.Vars(r)
+	idWarehouse, _ := params["idWarehouse"]
+
+	res, err := db.ProductDB{}.GetAllNoIgnore(idWarehouse)
+
+	if err != nil {
+		returnErr(w, err, "obtener todos")
+		return
+	}
+	_ = json.NewEncoder(w).Encode(res)
+}
+func (c ProductController) GetAllNew(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var params = mux.Vars(r)
+	idWarehouse, _ := params["idWarehouse"]
+
+	res, err := db.ProductDB{}.GetAllNew(idWarehouse)
+
+	if err != nil {
+		returnErr(w, err, "obtener todos")
+		return
+	}
+	_ = json.NewEncoder(w).Encode(res)
+}
+
 
 func (c ProductController) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -197,3 +240,4 @@ func (c ProductController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.NewEncoder(w).Encode(result)
 }
+

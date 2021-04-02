@@ -23,4 +23,6 @@ func Routes(r *mux.Router) {
 	invoiceRoutes(i)
 	b := r.PathPrefix("/brand").Subrouter()
 	brandRoutes(b)
+	pw := r.PathPrefix("/product-warehouse").Subrouter()
+	productWarehouseRoutes(pw)
 }

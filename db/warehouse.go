@@ -48,7 +48,7 @@ func (db WarehouseDB) Create(item models.Warehouse) (int64, error) {
 		tsql,
 		sql.Named("Name", item.Name),
 		sql.Named("Address", item.Address),
-		sql.Named("State", item.State))
+		sql.Named("Ignore", item.State))
 	if err != nil {
 		return -1, err
 	}
@@ -64,7 +64,7 @@ func (db WarehouseDB) Update(id string, item models.Warehouse) (int64, error) {
 		sql.Named("ID", id),
 		sql.Named("Name", item.Name),
 		sql.Named("Address", item.Address),
-		sql.Named("State", item.State))
+		sql.Named("Ignore", item.State))
 	if err != nil {
 		return -1, err
 	}

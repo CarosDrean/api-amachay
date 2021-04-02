@@ -111,7 +111,84 @@ func (db ProductDB) Delete(id string) (int64, error) {
 	}
 	return result.RowsAffected()
 }
+func (db ProductDB) GetProductWarehouse(idWarehouse string) ([]models.Product, error) {
+	res := make([]models.Product, 0)
 
+	tsql := fmt.Sprintf(db.Query["getProductWarehouse"].Q)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "getProductWarehouse", idWarehouse)
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+	return res, nil
+}
+
+
+
+func (db ProductDB) GetAllNoIgnore(idWarehouse string) ([]models.ProductFill, error) {
+	res := make([]models.ProductFill, 0)
+	var items models.ProductFill
+	tsql := fmt.Sprintf(query.Product["getAllNoIgnore"].Q, idWarehouse)
+
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		checkError(err, "GetAllNoIgnore", "db", "Reading rows")
+		return res, err
+	}
+	for rows.Next() {
+		var perishable sql.NullBool
+		var ignore sql.NullBool
+		var unity sql.NullFloat64
+		var stock sql.NullFloat64
+
+		err := rows.Scan(&items.ID, &items.IdCategory, &items.Name, &items.Price, &stock, &items.Measure, &unity,
+			&items.Description, &perishable, &ignore, &items.Category, &items.IdMeasure, &items.IdProductMeasure,
+			&items.MinAlert)
+		items.Perishable = perishable.Bool
+		items.Ignore = ignore.Bool
+		items.Unity = int(unity.Float64)
+		items.Stock = stock.Float64
+		if err != nil {
+			checkError(err, "GetAllNoIgnore", "db", "Scan rows")
+		}
+		res = append(res, items)
+	}
+	return res, nil
+}
+func (db ProductDB) GetAllNew(idWarehouse string) ([]models.ProductFill, error) {
+	res := make([]models.ProductFill, 0)
+	var items models.ProductFill
+	tsql := fmt.Sprintf(query.Product["getAll"].Q, idWarehouse)
+
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		checkError(err, "GetAllNew", "db", "Reading rows")
+		return res, err
+	}
+	for rows.Next() {
+		var perishable sql.NullBool
+		var ignore sql.NullBool
+		var unity sql.NullFloat64
+		var stock sql.NullFloat64
+
+		err := rows.Scan(&items.ID, &items.IdCategory, &items.Name, &items.Price, &stock, &items.Measure, &unity,
+			&items.Description, &perishable, &ignore, &items.Category, &items.IdMeasure, &items.IdProductMeasure,
+			&items.MinAlert)
+		items.Perishable = perishable.Bool
+		items.Ignore = ignore.Bool
+		items.Unity = int(unity.Float64)
+		items.Stock = stock.Float64
+		if err != nil {
+			checkError(err, "GetAllNew", "db", "Scan rows")
+		}
+		res = append(res, items)
+	}
+	return res, nil
+}
 func (db ProductDB) scan(rows *sql.Rows, err error, res *[]models.Product, ctx string,
 	situation string, extra string) error {
 	var item models.Product

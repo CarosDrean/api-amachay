@@ -9,6 +9,7 @@ type Product struct {
 	IdCategory  int     `json:"idCategory"`
 	Category    string  `json:"category"`
 	Perishable  bool    `json:"perishable"`
+	Ignore      bool    `json:"ignore"`
 }
 
 type ProductFill struct {
@@ -25,4 +26,6 @@ type ProductFill struct {
 	Unity            int     `json:"unity"`
 	MinAlert         int     `json:"minAlert"`
 	Perishable       bool    `json:"perishable"`
+	Ignore           bool    `json:"ignore"`
 }
+
