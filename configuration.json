@@ -1,0 +1,9 @@
+{
+  "engine": "mssql",
+  "server": "104.248.51.33",
+  "port": "1433",
+  "user": "sa",
+  "password": "Mahpholo2404",
+  "database": "AMACHAY"
+}
+
